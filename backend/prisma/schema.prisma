@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
+  COMMENTER
+  VIEWER
+}
+
+enum NotificationType {
+  MENTION
+  ASSIGNMENT
+  COMMENT
+  MEMBER_ADDED
+  MEMBER_REMOVED
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  passwordHash String
+  verified    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  ownedBoards    Board[]         @relation("BoardOwner")
+  boardMembers   BoardMember[]
+  cards          Card[]          @relation("CardAssignee")
+  comments       Comment[]
+  refreshTokens  RefreshToken[]
+  notifications  Notification[]
+
+  @@map("users")
+}
+
+model Board {
+  id          String   @id @default(cuid())
+  title       String
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner       User           @relation("BoardOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members     BoardMember[]
+  lists       List[]
+
+  @@map("boards")
+}
+
+model BoardMember {
+  id        String    @id @default(cuid())
+  boardId   String
+  userId    String
+  role      UserRole  @default(MEMBER)
+  joinedAt  DateTime  @default(now())
+
+  board     Board     @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([boardId, userId])
+  @@map("board_members")
+}
+
+model List {
+  id        String   @id @default(cuid())
+  boardId   String
+  title     String
+  position  Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards     Card[]
+
+  @@map("lists")
+}
+
+model Card {
+  id          String    @id @default(cuid())
+  listId      String
+  title       String
+  description String?
+  labels      String[]  @default([])
+  assigneeId  String?
+  dueDate     DateTime?
+  position    Float     @default(0)
+  version     Int       @default(1)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  list        List         @relation(fields: [listId], references: [id], onDelete: Cascade)
+  assignee    User?        @relation("CardAssignee", fields: [assigneeId], references: [id])
+  attachments Attachment[]
+  comments    Comment[]
+
+  @@map("cards")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  cardId    String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  cardId    String
+  filename  String
+  path      String
+  mimeType  String
+  size      Int
+  createdAt DateTime @default(now())
+
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@map("attachments")
+}
+
+model Notification {
+  id        String            @id @default(cuid())
+  userId    String
+  type      NotificationType
+  payload   Json
+  read      Boolean           @default(false)
+  createdAt DateTime          @default(now())
+
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String
+  revoked   Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tokenHash])
+  @@map("refresh_tokens")
+}
