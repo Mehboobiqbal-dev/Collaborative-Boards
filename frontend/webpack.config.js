@@ -15,7 +15,14 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: {
+          loader: 'ts-loader',
+          options: {
+            compilerOptions: {
+              jsx: 'react-jsx',
+            },
+          },
+        },
         exclude: /node_modules/,
       },
       {
