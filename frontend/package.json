@@ -39,6 +39,7 @@
     "styled-components": "^6.1.6"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.13",
     "@types/jest": "^29.5.8",
     "@types/react-beautiful-dnd": "^13.1.8",
     "@typescript-eslint/eslint-plugin": "^6.13.1",

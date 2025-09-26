@@ -129,6 +129,48 @@ export class AuthService {
   }
 
   async loginWithGoogle(idToken: string) {
+    // For demo purposes, handle mock tokens without real Google API validation
+    if (idToken.startsWith('mock-google-id-token-')) {
+      // Create mock user data for demo
+      const mockEmail = `google-user-${Date.now()}@example.com`
+      const mockName = `Google User ${Date.now()}`
+
+      let user = await prisma.user.findUnique({ where: { email: mockEmail } })
+      if (!user) {
+        user = await prisma.user.create({
+          data: {
+            email: mockEmail,
+            name: mockName,
+            passwordHash: '', // No password for OAuth users
+            verified: true,
+          },
+        })
+      }
+
+      const { accessToken, refreshToken } = generateTokens(user.id, user.email)
+      const refreshTokenHash = await hashRefreshToken(refreshToken)
+
+      await prisma.refreshToken.create({
+        data: {
+          userId: user.id,
+          tokenHash: refreshTokenHash,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        },
+      })
+
+      logger.info('User logged in with Google (mock)', { userId: user.id, email: user.email })
+
+      return {
+        accessToken,
+        refreshToken,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+        },
+      }
+    }
+
     // Verify Google ID token via Google tokeninfo (simple server-side validation)
     const response = await axios.get('https://oauth2.googleapis.com/tokeninfo', {
       params: { id_token: idToken },
