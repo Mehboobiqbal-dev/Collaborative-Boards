@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Prisma } from '@prisma/client'
 import { cacheService } from '../utils/cache'
 import logger from '../utils/logger'
 
@@ -94,7 +94,7 @@ export class ListService {
 
     await this.checkBoardAccess(list.boardId, userId)
 
-    const transaction = await prisma.$transaction(async (tx) => {
+    const transaction = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       if (newPosition > list.position) {
         await tx.list.updateMany({
           where: {

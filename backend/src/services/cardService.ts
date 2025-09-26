@@ -201,7 +201,7 @@ export class CardService {
 
     await this.checkBoardAccess(card.list.boardId, userId)
 
-    const transaction = await prisma.$transaction(async (tx) => {
+    const transaction = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       if (card.listId === newListId) {
         if (newPosition > card.position) {
           await tx.card.updateMany({
