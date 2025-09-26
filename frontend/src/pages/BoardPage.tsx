@@ -7,6 +7,7 @@ import { socketService } from '../services/socket'
 import { useAuth } from '../hooks/useAuth'
 import { Board, Card, BoardMember, Comment, Attachment, List } from '../types'
 import { showErrorToast, showSuccessToast } from '../utils/errorMessages'
+import { BoardSkeleton } from '../components/Skeleton'
 
 interface CardModalProps {
   card: Card
@@ -45,6 +46,7 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
       const updatedCard = await apiService.updateCard(card.id, updates)
       onCardUpdate(updatedCard)
       setEditing(false)
+      showSuccessToast('Card updated successfully')
     } catch (error) {
       console.error('Failed to update card:', error)
       showErrorToast('Failed to update card')
@@ -60,8 +62,9 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
     setCommentLoading(true)
     try {
       const comment = await apiService.addComment(card.id, newComment)
-      setComments(prev => [comment as Comment, ...prev])
+      setComments(prev => [comment as unknown as Comment, ...prev])
       setNewComment('')
+      showSuccessToast('Comment added')
     } catch (error) {
       console.error('Failed to add comment:', error)
       showErrorToast('Failed to add comment')
@@ -734,7 +737,7 @@ const BoardPage: React.FC = () => {
 
   const handleCreateList = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newListTitle.trim()) return
+    if (!newListTitle.trim() || !board) return
 
     try {
       const newList = await apiService.createList(board.id, newListTitle)
@@ -793,7 +796,16 @@ const BoardPage: React.FC = () => {
   }
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>
+    return (
+      <div className="p-4">
+        <div className="mb-8">
+          <div className="h-8 bg-gray-200 rounded w-48 mb-4"></div>
+          <div className="h-6 bg-gray-200 rounded w-32 mb-6"></div>
+          <div className="h-10 bg-gray-200 rounded w-32"></div>
+        </div>
+        <BoardSkeleton />
+      </div>
+    )
   }
 
   if (!board) {
@@ -923,8 +935,8 @@ const BoardPage: React.FC = () => {
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="flex gap-4 overflow-x-auto pb-4">
         {board.lists.map((list) => (
-            <div
-              key={list.id}
+          <div
+            key={list.id}
               className="min-w-72 bg-gray-50 rounded-lg p-4"
             >
               <div className="flex justify-between items-center mb-4">
@@ -1049,7 +1061,7 @@ const BoardPage: React.FC = () => {
               + Add Card
             </button>
           </div>
-          ))}
+        ))}
 
           {/* Add List Button */}
           <div className="min-w-72">
@@ -1089,7 +1101,7 @@ const BoardPage: React.FC = () => {
                 + Add another list
               </button>
             )}
-          </div>
+      </div>
         </div>
       </DragDropContext>
 

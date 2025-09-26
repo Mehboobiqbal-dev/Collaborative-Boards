@@ -92,58 +92,19 @@
   background-color: #c82333;
 }
 
-.error-message {
-  color: #dc3545;
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  border: 1px solid #f5c6cb;
-  border-radius: 4px;
-  background-color: #f8d7da;
+/* Custom utilities */
+.btn {
+  @apply px-4 py-2 border border-transparent rounded-md font-medium cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
 }
 
-.success-message {
-  color: #155724;
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  border: 1px solid #c3e6cb;
-  border-radius: 4px;
-  background-color: #d4edda;
+.btn-primary {
+  @apply bg-primary text-white hover:bg-blue-700 focus:ring-primary;
 }
 
-.dashboard {
-  padding: 2rem;
+.btn-secondary {
+  @apply bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500;
 }
 
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.board-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-}
-
-.board-card {
-  padding: 1.5rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: box-shadow 0.2s;
-}
-
-.board-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.board-card h3 {
-  margin: 0 0 0.5rem 0;
-}
-
-.board-card p {
-  margin: 0;
-  color: #666;
+.btn-danger {
+  @apply bg-error text-white hover:bg-red-700 focus:ring-error;
 }
