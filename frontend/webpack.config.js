@@ -11,13 +11,13 @@ const getTemplatePath = () => {
     path.resolve(process.cwd(), 'frontend/public/index.html'),
     path.resolve(process.cwd(), 'public/index.html')
   ]
-  
+
   for (const templatePath of possiblePaths) {
     if (fs.existsSync(templatePath)) {
       return templatePath
     }
   }
-  
+
   // Fallback to the original path
   return path.resolve(__dirname, 'public/index.html')
 }
