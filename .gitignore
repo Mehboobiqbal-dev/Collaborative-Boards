@@ -88,6 +88,31 @@ temp/
 # Database
 *.db
 *.sqlite
+backend/prisma/dev.db
+backend/prisma/*.db
 
 # Uploads
 uploads/
+backend/uploads/
+
+# Prisma
+backend/prisma/migrations/
+
+# Docker
+.dockerignore
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Windows
+$RECYCLE.BIN/
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon
+
+# Linux
+*~
