@@ -97,6 +97,24 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
     }
   }
 
+  const handleDownloadAttachment = async (attachmentId: string, filename: string) => {
+    try {
+      const response = await apiService.downloadAttachment(attachmentId)
+      const blob = new Blob([response.data])
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Failed to download attachment:', error)
+      showErrorToast(getErrorMessage(error))
+    }
+  }
+
   const toggleLabel = (label: string) => {
     setLabels(prev =>
       prev.includes(label)
@@ -154,6 +172,11 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSave()
+                  }
+                }}
                 className="text-2xl font-bold border border-gray-300 p-2 w-full rounded"
               />
             ) : (
@@ -327,9 +350,13 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
               <div>
                 {attachments.map((attachment) => (
                   <div key={attachment.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px', marginBottom: '0.25rem' }}>
-                    <a href={`/uploads/${attachment.filename}`} target="_blank" rel="noopener noreferrer">
+                    <button
+                      onClick={() => handleDownloadAttachment(attachment.id, attachment.filename)}
+                      className="btn btn-link"
+                      style={{ padding: '0', textAlign: 'left', textDecoration: 'underline', background: 'none', border: 'none', color: '#007bff' }}
+                    >
                       {attachment.filename}
-                    </a>
+                    </button>
                     <button
                       onClick={() => handleRemoveAttachment(attachment.id)}
                       className="btn btn-danger"

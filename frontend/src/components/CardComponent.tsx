@@ -60,6 +60,40 @@ const CardComponent: React.FC<CardComponentProps> = ({ card, index, onClick, onD
               ))}
             </div>
           )}
+          
+          {/* Card metadata */}
+          <div className="flex items-center justify-between text-xs text-gray-500 mt-2">
+            <div className="flex items-center gap-2">
+              {card.dueDate && (
+                <span className={`px-2 py-1 rounded text-xs ${
+                  new Date(card.dueDate) < new Date() 
+                    ? 'bg-red-100 text-red-700' 
+                    : new Date(card.dueDate) <= new Date(Date.now() + 24 * 60 * 60 * 1000)
+                    ? 'bg-yellow-100 text-yellow-700'
+                    : 'bg-gray-100 text-gray-700'
+                }`}>
+                  📅 {new Date(card.dueDate).toLocaleDateString()}
+                </span>
+              )}
+              {card.assignee && (
+                <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
+                  👤 {card.assignee.name}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-1">
+              {card.attachments && card.attachments.length > 0 && (
+                <span className="text-gray-400" title={`${card.attachments.length} attachment(s)`}>
+                  📎 {card.attachments.length}
+                </span>
+              )}
+              {card.comments && card.comments.length > 0 && (
+                <span className="text-gray-400" title={`${card.comments.length} comment(s)`}>
+                  💬 {card.comments.length}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </Draggable>

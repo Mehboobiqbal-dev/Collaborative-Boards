@@ -363,6 +363,13 @@ class ApiService {
     return response.data
   }
 
+  async downloadAttachment(attachmentId: string): Promise<any> {
+    const response = await this.api.get(`/uploads/attachments/${attachmentId}/download`, {
+      responseType: 'blob'
+    })
+    return response
+  }
+
   async searchUsers(query: string, boardId?: string): Promise<User[]> {
     const params = new URLSearchParams()
     params.append('q', query)
