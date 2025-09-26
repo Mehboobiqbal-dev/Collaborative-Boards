@@ -11,6 +11,10 @@ module.exports = {
     publicPath: '/',
     clean: true,
   },
+  stats: {
+    children: true,
+    errorDetails: true,
+  },
   optimization: {
     splitChunks: {
       chunks: 'all',
