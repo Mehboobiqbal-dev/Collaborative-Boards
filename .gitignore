@@ -9,7 +9,7 @@ build/
 # .gitignore
 .env
 env.local
-t 
+
 
 # Logs
 logs
