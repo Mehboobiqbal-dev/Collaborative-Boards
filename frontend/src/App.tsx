@@ -29,7 +29,11 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth()
 
   if (loading) {
-    return <div className="loading">Loading...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <SkeletonLoader variant="card" className="w-96" />
+      </div>
+    )
   }
 
   return !user ? <>{children}</> : <Navigate to="/dashboard" />
