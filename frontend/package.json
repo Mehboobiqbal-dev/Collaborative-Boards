@@ -5,6 +5,7 @@
   "main": "src/index.tsx",
   "scripts": {
     "build": "webpack --mode production",
+    "vercel-build": "npm run build",
     "dev": "webpack serve --mode development",
     "start": "serve dist -s -l 3000",
     "serve": "serve dist -s -l 3000",

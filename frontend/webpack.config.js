@@ -18,24 +18,38 @@ module.exports = {
   optimization: {
     splitChunks: {
       chunks: 'all',
+      maxInitialRequests: 30,
+      maxAsyncRequests: 30,
       cacheGroups: {
         vendor: {
           test: /[\\/]node_modules[\\/]/,
           name: 'vendors',
           chunks: 'all',
+          priority: 10,
         },
         react: {
           test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
           name: 'react',
           chunks: 'all',
+          priority: 20,
         },
         ui: {
           test: /[\\/]node_modules[\\/](react-beautiful-dnd|sweetalert2|react-markdown)[\\/]/,
           name: 'ui-libs',
           chunks: 'all',
+          priority: 15,
+        },
+        common: {
+          name: 'common',
+          minChunks: 2,
+          chunks: 'all',
+          priority: 5,
+          reuseExistingChunk: true,
         },
       },
     },
+    usedExports: true,
+    sideEffects: false,
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
@@ -56,7 +70,7 @@ module.exports = {
       },
       {
         test: /\.css$/i,
-        use: ['style-loader', 'css-loader', 'postcss-loader'],
+        use: ['style-loader', 'css-loader'],
       },
     ],
   },
