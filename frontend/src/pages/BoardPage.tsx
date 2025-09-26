@@ -4,6 +4,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautif
 import ReactMarkdown from 'react-markdown'
 import { apiService } from '../services/api'
 import { socketService } from '../services/socket'
+import { useRealTime } from '../components/RealTimeProvider'
 import { useAuth } from '../hooks/useAuth'
 import { Board, Card, BoardMember, Comment, Attachment, List } from '../types'
 import { showErrorToast, showSuccessToast } from '../utils/errorMessages'
@@ -504,6 +505,7 @@ const BoardPage: React.FC = () => {
   const [editingListTitle, setEditingListTitle] = useState('')
   const navigate = useNavigate()
   const { user } = useAuth()
+  const rt = useRealTime()
 
   const getUserRole = (): string | null => {
     if (!user || !board) return null
@@ -605,7 +607,7 @@ const BoardPage: React.FC = () => {
       await apiService.moveCard(draggedCard.id, destination.droppableId, newPosition)
 
       // Emit socket event
-      socketService.emitCardMove({
+      rt.emitCardMove({
         cardId: draggedCard.id,
         listId: destination.droppableId,
         position: newPosition
@@ -621,9 +623,9 @@ const BoardPage: React.FC = () => {
   useEffect(() => {
     if (boardId) {
       loadBoard()
-      socketService.connect(boardId)
+      rt.connectToBoard(boardId)
 
-      socketService.onCardCreated((card: Card) => {
+      rt.onCardCreated((card: Card) => {
         setBoard(prev => prev ? {
           ...prev,
           lists: prev.lists.map(list =>
@@ -634,7 +636,7 @@ const BoardPage: React.FC = () => {
         } : null)
       })
 
-      socketService.onCardUpdated((updatedCard: Card) => {
+      rt.onCardUpdated((updatedCard: Card) => {
         setBoard(prev => prev ? {
           ...prev,
           lists: prev.lists.map(list => ({
@@ -646,7 +648,7 @@ const BoardPage: React.FC = () => {
         } : null)
       })
 
-      socketService.onCardMoved((movedCard: Card) => {
+      rt.onCardMoved((movedCard: Card) => {
         setBoard(prev => prev ? {
           ...prev,
           lists: prev.lists.map(list => ({
@@ -661,7 +663,7 @@ const BoardPage: React.FC = () => {
       })
 
       return () => {
-        socketService.disconnect()
+        rt.disconnect()
       }
     }
   }, [boardId])
@@ -688,7 +690,7 @@ const BoardPage: React.FC = () => {
       const card = await apiService.createCard(listId, {
         title,
       })
-      socketService.emitCardCreate({ listId, card })
+      rt.emitCardCreate({ listId, card })
     } catch (error) {
       console.error('Failed to create card:', error)
     }
