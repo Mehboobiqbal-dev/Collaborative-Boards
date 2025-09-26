@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { apiService } from '../services/api';
+import { getErrorMessage, showErrorToast, showSuccessToast } from '../utils/errorMessages';
 import { Board } from '../types';
 
 const DashboardPage: React.FC = () => {
@@ -28,6 +29,7 @@ const DashboardPage: React.FC = () => {
       );
     } catch (error) {
       console.error('Failed to load boards:', error);
+      showErrorToast(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -43,6 +45,7 @@ const DashboardPage: React.FC = () => {
       setShowCreateForm(false);
     } catch (error) {
       console.error('Failed to create board:', error);
+      showErrorToast(getErrorMessage(error));
     }
   };
 

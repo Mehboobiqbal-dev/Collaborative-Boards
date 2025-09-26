@@ -7,7 +7,7 @@ import { socketService } from '../services/socket'
 import { useRealTime } from '../components/RealTimeProvider'
 import { useAuth } from '../hooks/useAuth'
 import { Board, Card, BoardMember, Comment, Attachment, List } from '../types'
-import { showErrorToast, showSuccessToast } from '../utils/errorMessages'
+import { showErrorToast, showSuccessToast, getErrorMessage } from '../utils/errorMessages'
 import { BoardSkeleton } from '../components/Skeleton'
 
 interface CardModalProps {
@@ -85,7 +85,7 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
       onCardUpdate(updatedCard)
     } catch (error) {
       console.error('Failed to upload file:', error)
-      alert('Failed to upload file')
+      showErrorToast(getErrorMessage(error))
     } finally {
       setUploadLoading(false)
     }
@@ -99,7 +99,7 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
       onCardUpdate(updatedCard)
     } catch (error) {
       console.error('Failed to delete attachment:', error)
-      alert('Failed to delete attachment')
+      showErrorToast(getErrorMessage(error))
     }
   }
 
@@ -372,9 +372,10 @@ const MembersModal: React.FC<MembersModalProps> = ({ board, onClose, onBoardUpda
       })
       setInviteEmail('')
       setInviteRole('MEMBER')
+      showSuccessToast('Member invited')
     } catch (error) {
       console.error('Failed to invite member:', error)
-      alert('Failed to invite member')
+      showErrorToast(getErrorMessage(error))
     } finally {
       setLoading(false)
     }
@@ -387,9 +388,10 @@ const MembersModal: React.FC<MembersModalProps> = ({ board, onClose, onBoardUpda
         ...board,
         members: board.members.map(m => m.id === memberId ? updatedMember : m)
       })
+      showSuccessToast('Member role updated')
     } catch (error) {
       console.error('Failed to update role:', error)
-      alert('Failed to update role')
+      showErrorToast(getErrorMessage(error))
     }
   }
 
@@ -402,9 +404,10 @@ const MembersModal: React.FC<MembersModalProps> = ({ board, onClose, onBoardUpda
         ...board,
         members: board.members.filter(m => m.id !== memberId)
       })
+      showSuccessToast('Member removed')
     } catch (error) {
       console.error('Failed to remove member:', error)
-      alert('Failed to remove member')
+      showErrorToast(getErrorMessage(error))
     }
   }
 
@@ -709,7 +712,7 @@ const BoardPage: React.FC = () => {
       } : null)
     } catch (error) {
       console.error('Failed to delete card:', error)
-      alert('Failed to delete card')
+      showErrorToast(getErrorMessage(error))
     }
   }
 
@@ -726,7 +729,7 @@ const BoardPage: React.FC = () => {
       setShowAddList(false)
     } catch (error) {
       console.error('Failed to create list:', error)
-      alert('Failed to create list')
+      showErrorToast(getErrorMessage(error))
     }
   }
 
@@ -743,7 +746,7 @@ const BoardPage: React.FC = () => {
       setEditingListTitle('')
     } catch (error) {
       console.error('Failed to update list:', error)
-      alert('Failed to update list')
+      showErrorToast(getErrorMessage(error))
     }
   }
 
@@ -758,7 +761,7 @@ const BoardPage: React.FC = () => {
       } : null)
     } catch (error) {
       console.error('Failed to delete list:', error)
-      alert('Failed to delete list')
+      showErrorToast(getErrorMessage(error))
     }
   }
 

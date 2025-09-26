@@ -1,5 +1,6 @@
 import { io, Socket } from 'socket.io-client'
 import { Card, Comment } from '../types'
+import { showInfoToast, showErrorToast } from '../utils/errorMessages'
 
 class SocketService {
   private socket: Socket | null = null
@@ -17,6 +18,15 @@ class SocketService {
 
     this.socket.on('connect', () => {
       this.socket?.emit('join-board', boardId)
+      showInfoToast('Connected to realtime updates')
+    })
+
+    this.socket.on('disconnect', (reason) => {
+      showErrorToast('Disconnected. Reconnecting...')
+    })
+
+    this.socket.io.on('reconnect', () => {
+      showInfoToast('Reconnected')
     })
 
     return this.socket

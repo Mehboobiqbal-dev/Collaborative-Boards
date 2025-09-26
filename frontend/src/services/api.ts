@@ -6,6 +6,8 @@ import { AuthTokens, User, Board, BoardMember, Card, List, Notification, Attachm
 class ApiService {
   private api: AxiosInstance
   private refreshPromise: Promise<AuthTokens> | null = null
+  private globalPauseUntilMs = 0
+  private inflightGet = new Map<string, Promise<any>>()
 
   constructor() {
     this.api = axios.create({
@@ -17,7 +19,13 @@ class ApiService {
   }
 
   private setupInterceptors() {
-    this.api.interceptors.request.use((config) => {
+    this.api.interceptors.request.use(async (config) => {
+      // Respect global pause (after a 429) to avoid hammering the server
+      const now = Date.now()
+      if (this.globalPauseUntilMs > now) {
+        const waitMs = this.globalPauseUntilMs - now
+        await new Promise((r) => setTimeout(r, waitMs))
+      }
       const token = localStorage.getItem('accessToken')
       if (token) {
         config.headers.Authorization = `Bearer ${token}`
@@ -53,7 +61,16 @@ class ApiService {
           originalRequest._retry429Count = originalRequest._retry429Count || 0
           if (originalRequest._retry429Count < maxRetries) {
             originalRequest._retry429Count += 1
-            const delayMs = Math.min(1000 * 2 ** originalRequest._retry429Count, 8000)
+            // Prefer Retry-After header if present
+            const retryAfterHeader = error.response.headers?.['retry-after']
+            const retryAfterSeconds = retryAfterHeader ? parseInt(retryAfterHeader, 10) : NaN
+            const backoffMs = Math.min(1000 * 2 ** originalRequest._retry429Count, 8000)
+            const delayMs = Number.isFinite(retryAfterSeconds) ? retryAfterSeconds * 1000 : backoffMs
+            // Set a global pause so parallel requests also wait
+            this.globalPauseUntilMs = Date.now() + delayMs
+            // Add a small jitter
+            const jitter = Math.floor(Math.random() * 200)
+            await new Promise((resolve) => setTimeout(resolve, delayMs + jitter))
             await new Promise((resolve) => setTimeout(resolve, delayMs))
             return this.api(originalRequest)
           }
@@ -121,8 +138,11 @@ class ApiService {
   }
 
   async getBoards(): Promise<Board[]> {
-    const response = await this.api.get('/boards')
-    return response.data
+    const key = 'GET:/boards'
+    if (!this.inflightGet.has(key)) {
+      this.inflightGet.set(key, this.api.get('/boards').then(r => r.data).finally(() => this.inflightGet.delete(key)))
+    }
+    return this.inflightGet.get(key) as Promise<Board[]>
   }
 
   async createBoard(title: string): Promise<Board> {
@@ -131,8 +151,11 @@ class ApiService {
   }
 
   async getBoard(boardId: string): Promise<Board> {
-    const response = await this.api.get(`/boards/${boardId}`)
-    return response.data
+    const key = `GET:/boards/${boardId}`
+    if (!this.inflightGet.has(key)) {
+      this.inflightGet.set(key, this.api.get(`/boards/${boardId}`).then(r => r.data).finally(() => this.inflightGet.delete(key)))
+    }
+    return this.inflightGet.get(key) as Promise<Board>
   }
 
   async updateBoard(boardId: string, title: string): Promise<Board> {
