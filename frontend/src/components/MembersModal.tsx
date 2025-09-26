@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import Swal from 'sweetalert2'
 import { apiService } from '../services/api'
 import { Board, BoardMember } from '../types'
 import { showErrorToast, showSuccessToast, getErrorMessage } from '../utils/errorMessages'
@@ -51,7 +52,18 @@ const MembersModal: React.FC<MembersModalProps> = ({ board, onClose, onBoardUpda
   }
 
   const handleRemoveMember = async (memberId: string) => {
-    if (!confirm('Are you sure you want to remove this member?')) return
+    const result = await Swal.fire({
+      title: 'Remove Member',
+      text: 'Are you sure you want to remove this member?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, remove them!',
+      cancelButtonText: 'Cancel'
+    })
+
+    if (!result.isConfirmed) return
 
     try {
       await apiService.removeBoardMember(board.id, memberId)

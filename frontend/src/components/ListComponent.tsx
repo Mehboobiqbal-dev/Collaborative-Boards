@@ -67,7 +67,19 @@ const ListComponent: React.FC<ListComponentProps> = ({
   }
 
   const handleDeleteCard = async (cardId: string) => {
-    if (!confirm('Delete this card?')) return
+    const result = await Swal.fire({
+      title: 'Delete Card',
+      text: 'Are you sure you want to delete this card?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    })
+
+    if (!result.isConfirmed) return
+
     try {
       await apiService.deleteCard(cardId)
     } catch (error) {
