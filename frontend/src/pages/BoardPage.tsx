@@ -6,7 +6,7 @@ import { useRealTime } from '../components/RealTimeProvider'
 import { useAuth } from '../hooks/useAuth'
 import { Board, Card, BoardMember } from '../types'
 import { showErrorToast, getErrorMessage } from '../utils/errorMessages'
-import { BoardSkeleton } from '../components/Skeleton'
+import { BoardLoader } from '../components/LoadingSpinner'
 import SearchComponent from '../components/SearchComponent'
 import ListComponent from '../components/ListComponent'
 import CardModal from '../components/CardModal'
@@ -259,16 +259,7 @@ const BoardPage: React.FC = () => {
   }
 
   if (loading) {
-    return (
-      <div className="p-4">
-        <div className="mb-8">
-          <div className="h-8 bg-gray-200 rounded w-48 mb-4"></div>
-          <div className="h-6 bg-gray-200 rounded w-32 mb-6"></div>
-          <div className="h-10 bg-gray-200 rounded w-32"></div>
-        </div>
-        <BoardSkeleton />
-      </div>
-    )
+    return <BoardLoader />
   }
 
   if (!board) {

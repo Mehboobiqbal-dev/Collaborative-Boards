@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { apiService } from '../services/api';
 import { getErrorMessage, showErrorToast, showSuccessToast } from '../utils/errorMessages';
 import { Board } from '../types';
+import { DashboardLoader } from '../components/LoadingSpinner';
 
 const DashboardPage: React.FC = () => {
   const [boards, setBoards] = useState<Board[]>([]);
@@ -60,24 +61,7 @@ const DashboardPage: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div>
-        <div className="mb-8">
-          <div className="h-9 bg-gray-200 rounded w-64 mb-2"></div>
-          <div className="h-5 bg-gray-200 rounded w-48 mb-6"></div>
-          <div className="h-10 bg-gray-200 rounded w-32"></div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="bg-white p-6 rounded-lg shadow-sm border">
-              <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2 mb-1"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+    return <DashboardLoader />;
   }
 
   return (

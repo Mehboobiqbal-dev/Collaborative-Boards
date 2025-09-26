@@ -35,6 +35,11 @@ const SignupPage: React.FC = () => {
               sign in to existing account
             </Link>
           </p>
+          <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+            <p className="text-yellow-800 text-sm text-center">
+              <strong>Already have an account?</strong> If you've used this app before, please sign in instead of creating a new account to access your existing boards and data.
+            </p>
+          </div>
         </div>
         <div className="mt-8 space-y-6">
           <div className="rounded-md shadow-sm -space-y-px">

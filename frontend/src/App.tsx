@@ -4,7 +4,7 @@ import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import Layout from './components/Layout'
 import ErrorBoundary from './components/ErrorBoundary'
-import SkeletonLoader from './components/SkeletonLoader'
+import { PageLoader, AuthLoader } from './components/LoadingSpinner'
 import './App.css'
 import { RealTimeProvider } from './components/RealTimeProvider'
 
@@ -19,7 +19,7 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const { user, loading } = useAuth()
 
   if (loading) {
-    return <SkeletonLoader variant="page" />
+    return <PageLoader text="Loading dashboard..." />
   }
 
   return user ? <Layout>{children}</Layout> : <Navigate to="/login" />
@@ -29,11 +29,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth()
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <SkeletonLoader variant="card" className="w-96" />
-      </div>
-    )
+    return <AuthLoader />
   }
 
   return !user ? <>{children}</> : <Navigate to="/dashboard" />
@@ -46,7 +42,7 @@ function App() {
         <RealTimeProvider>
         <Router>
           <div className="App">
-            <Suspense fallback={<SkeletonLoader variant="page" />}>
+            <Suspense fallback={<PageLoader text="Loading page..." />}>
               <Routes>
                 <Route
                   path="/login"

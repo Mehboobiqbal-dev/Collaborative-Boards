@@ -265,13 +265,20 @@ export class BoardService {
   }
 
   async getUserBoards(userId: string) {
-    return prisma.boardMember.findMany({
+    const boardMembers = await prisma.boardMember.findMany({
       where: { userId },
       include: {
         board: {
           include: {
             owner: {
-              select: { id: true, name: true },
+              select: { id: true, name: true, email: true },
+            },
+            members: {
+              include: {
+                user: {
+                  select: { id: true, name: true, email: true },
+                },
+              },
             },
             _count: {
               select: { lists: true, members: true },
@@ -280,6 +287,16 @@ export class BoardService {
         },
       },
     })
+
+    // Transform the data to match the frontend Board interface
+    return boardMembers.map(boardMember => ({
+      id: boardMember.board.id,
+      title: boardMember.board.title,
+      ownerId: boardMember.board.ownerId,
+      owner: boardMember.board.owner,
+      members: boardMember.board.members,
+      lists: [], // Empty for dashboard view - will be loaded when board is opened
+    }))
   }
 }
 
