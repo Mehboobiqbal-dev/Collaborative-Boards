@@ -32,6 +32,11 @@ const DashboardPage: React.FC = () => {
           members: board.members ?? [], // Default to empty array
         }))
       );
+      
+      // Show success message if boards were loaded successfully
+      if (userBoards.length > 0) {
+        showSuccessToast(`Welcome back! Loaded ${userBoards.length} board${userBoards.length !== 1 ? 's' : ''} from your account.`);
+      }
     } catch (error) {
       console.error('Failed to load boards:', error);
       showErrorToast(getErrorMessage(error));
@@ -151,7 +156,13 @@ const DashboardPage: React.FC = () => {
           ))
         ) : (
           <div className="col-span-full text-center py-12">
-            <p className="text-gray-500 text-lg">No boards yet. Create your first board to get started!</p>
+            <p className="text-gray-500 text-lg mb-4">No boards yet. Create your first board to get started!</p>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+              <p className="text-blue-800 text-sm">
+                <strong>Note:</strong> Your data is automatically saved and will persist even after logging out. 
+                Make sure you're logging in with the same email address you used to create your boards.
+              </p>
+            </div>
           </div>
         )}
       </div>

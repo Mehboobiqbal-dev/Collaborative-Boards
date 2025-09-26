@@ -143,7 +143,7 @@ const ListComponent: React.FC<ListComponentProps> = ({
               snapshot.isDraggingOver ? 'bg-gray-200' : 'bg-transparent'
             }`}
           >
-            {list.cards.map((card, index) => (
+            {(list.cards || []).map((card, index) => (
               <CardComponent
                 key={card.id}
                 card={card}

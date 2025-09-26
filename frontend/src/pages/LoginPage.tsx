@@ -34,6 +34,11 @@ const LoginPage: React.FC = () => {
               create a new account
             </Link>
           </p>
+          <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3">
+            <p className="text-green-800 text-sm text-center">
+              <strong>Your data is safe!</strong> All your boards, lists, and cards are automatically saved and will be available when you log back in.
+            </p>
+          </div>
         </div>
         <div className="mt-8 space-y-6">
           <div className="rounded-md shadow-sm -space-y-px">

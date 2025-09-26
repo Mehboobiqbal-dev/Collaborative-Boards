@@ -205,7 +205,7 @@ const BoardPage: React.FC = () => {
       const newList = await apiService.createList(board.id, newListTitle)
       setBoard(prev => prev ? {
         ...prev,
-        lists: [...prev.lists, newList]
+        lists: [...prev.lists, { ...newList, cards: [] }]
       } : null)
       setNewListTitle('')
       setShowAddList(false)

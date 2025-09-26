@@ -72,7 +72,10 @@ export class CardService {
 
     logger.info('Card created', { cardId: card.id, listId, userId, title: data.title })
 
-    return nullToUndefinedDeep(card)
+    return nullToUndefinedDeep({
+      ...card,
+      labels: card.labels ? JSON.parse(card.labels) : [], // Deserialize labels for frontend
+    })
   }
 
   async getCard(cardId: string, userId: string): Promise<CardWithRelations> {

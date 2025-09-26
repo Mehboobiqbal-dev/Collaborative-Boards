@@ -48,7 +48,7 @@ const CardComponent: React.FC<CardComponentProps> = ({ card, index, onClick, onD
               </ReactMarkdown>
             </div>
           )}
-          {card.labels.length > 0 && (
+          {card.labels && Array.isArray(card.labels) && card.labels.length > 0 && (
             <div className="flex flex-wrap gap-1 mb-2">
               {card.labels.map((label, index) => (
                 <span
