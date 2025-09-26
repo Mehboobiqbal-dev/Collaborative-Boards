@@ -5,6 +5,16 @@ import logger from '../utils/logger'
 
 const prisma = new PrismaClient()
 
+// Utility to convert null to undefined recursively
+function nullToUndefinedDeep(obj: any): any {
+  if (obj === null) return undefined;
+  if (Array.isArray(obj)) return obj.map(nullToUndefinedDeep);
+  if (typeof obj !== 'object') return obj;
+  return Object.fromEntries(
+    Object.entries(obj).map(([k, v]) => [k, nullToUndefinedDeep(v)])
+  );
+}
+
 export class CardService {
   async createCard(listId: string, userId: string, data: {
     title: string
@@ -12,7 +22,7 @@ export class CardService {
     labels?: string[]
     assigneeId?: string
     dueDate?: Date
-  }) {
+  }): Promise<CardWithRelations> {
     const list = await prisma.list.findUnique({
       where: { id: listId },
       select: { boardId: true },
@@ -62,7 +72,7 @@ export class CardService {
 
     logger.info('Card created', { cardId: card.id, listId, userId, title: data.title })
 
-    return card
+    return nullToUndefinedDeep(card)
   }
 
   async getCard(cardId: string, userId: string): Promise<CardWithRelations> {
@@ -93,16 +103,7 @@ export class CardService {
 
     await this.checkBoardAccess(card.list.boardId, userId)
 
-    // Transform Prisma result to match our interface types
-    const transformedCard: CardWithRelations = {
-      ...card,
-      description: card.description ?? undefined,
-      assigneeId: card.assigneeId ?? undefined,
-      dueDate: card.dueDate ?? undefined,
-      assignee: card.assignee ?? undefined,
-    }
-
-    return transformedCard
+    return nullToUndefinedDeep(card)
   }
 
   async updateCard(cardId: string, userId: string, data: {
@@ -113,7 +114,7 @@ export class CardService {
     dueDate?: Date
     position?: number
     listId?: string
-  }) {
+  }): Promise<CardWithRelations> {
     const card = await prisma.card.findUnique({
       where: { id: cardId },
       select: { listId: true, list: { select: { boardId: true } } },
@@ -159,7 +160,7 @@ export class CardService {
 
     logger.info('Card updated', { cardId, userId, fields: Object.keys(updateData) })
 
-    return updatedCard
+    return nullToUndefinedDeep(updatedCard)
   }
 
   async deleteCard(cardId: string, userId: string) {
@@ -185,7 +186,7 @@ export class CardService {
     return { message: 'Card deleted successfully' }
   }
 
-  async moveCard(cardId: string, userId: string, newListId: string, newPosition: number) {
+  async moveCard(cardId: string, userId: string, newListId: string, newPosition: number): Promise<CardWithRelations> {
     const card = await prisma.card.findUnique({
       where: { id: cardId },
       select: { listId: true, position: true, list: { select: { boardId: true } } },
@@ -254,6 +255,23 @@ export class CardService {
           position: newPosition,
           version: { increment: 1 },
         },
+        include: {
+          assignee: {
+            select: { id: true, name: true, email: true },
+          },
+          attachments: true,
+          comments: {
+            include: {
+              author: {
+                select: { id: true, name: true, email: true },
+              },
+            },
+            orderBy: { createdAt: 'desc' },
+          },
+          list: {
+            select: { boardId: true },
+          },
+        },
       })
     })
 
@@ -268,7 +286,7 @@ export class CardService {
       toPosition: newPosition,
     })
 
-    return transaction
+    return nullToUndefinedDeep(transaction)
   }
 
   async searchCards(userId: string, filters: {
@@ -345,7 +363,7 @@ export class CardService {
 
     const total = await prisma.card.count({ where })
 
-    return { cards, total, limit: filters.limit || 50, offset: filters.offset || 0 }
+    return { cards: cards.map(nullToUndefinedDeep), total, limit: filters.limit || 50, offset: filters.offset || 0 }
   }
 
   private async checkBoardAccess(boardId: string, userId: string) {
