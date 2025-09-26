@@ -24,6 +24,9 @@ const io = new Server(server, {
     methods: ['GET', 'POST'],
   },
 })
+import * as dotenv from 'dotenv';
+dotenv.config();
+console.log('MONGO_URI:', process.env.MONGO_URI); // Debug
 
 app.use(helmet())
 app.use(cors())
