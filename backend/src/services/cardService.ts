@@ -47,7 +47,7 @@ export class CardService {
         listId,
         title: data.title,
         description: data.description,
-        labels: data.labels || [],
+        labels: JSON.stringify(data.labels || []), // Serialize labels array to JSON string
         assigneeId: data.assigneeId,
         dueDate: data.dueDate,
         position: newPosition,
@@ -103,7 +103,10 @@ export class CardService {
 
     await this.checkBoardAccess(card.list.boardId, userId)
 
-    return nullToUndefinedDeep(card)
+    return nullToUndefinedDeep({
+      ...card,
+      labels: card.labels ? JSON.parse(card.labels) : [], // Deserialize labels for frontend
+    })
   }
 
   async updateCard(cardId: string, userId: string, data: {
@@ -129,7 +132,7 @@ export class CardService {
     const updateData: any = {}
     if (data.title !== undefined) updateData.title = data.title
     if (data.description !== undefined) updateData.description = data.description
-    if (data.labels !== undefined) updateData.labels = data.labels
+    if (data.labels !== undefined) updateData.labels = JSON.stringify(data.labels) // Serialize labels array
     if (data.assigneeId !== undefined) updateData.assigneeId = data.assigneeId
     if (data.dueDate !== undefined) updateData.dueDate = data.dueDate
     if (data.position !== undefined) updateData.position = data.position
@@ -160,7 +163,10 @@ export class CardService {
 
     logger.info('Card updated', { cardId, userId, fields: Object.keys(updateData) })
 
-    return nullToUndefinedDeep(updatedCard)
+    return nullToUndefinedDeep({
+      ...updatedCard,
+      labels: updatedCard.labels ? JSON.parse(updatedCard.labels) : [], // Deserialize labels
+    })
   }
 
   async deleteCard(cardId: string, userId: string) {
@@ -286,7 +292,10 @@ export class CardService {
       toPosition: newPosition,
     })
 
-    return nullToUndefinedDeep(transaction)
+    return nullToUndefinedDeep({
+      ...transaction,
+      labels: transaction.labels ? JSON.parse(transaction.labels) : [], // Deserialize labels
+    })
   }
 
   async searchCards(userId: string, filters: {
@@ -323,7 +332,7 @@ export class CardService {
     }
 
     if (filters.labels && filters.labels.length > 0) {
-      where.labels = { hasSome: filters.labels }
+      where.labels = { contains: JSON.stringify(filters.labels) } // Match JSON string in DB
     }
 
     if (filters.assignee) {
@@ -363,7 +372,15 @@ export class CardService {
 
     const total = await prisma.card.count({ where })
 
-    return { cards: cards.map(nullToUndefinedDeep), total, limit: filters.limit || 50, offset: filters.offset || 0 }
+    return {
+      cards: cards.map((card) => ({
+        ...nullToUndefinedDeep(card),
+        labels: card.labels ? JSON.parse(card.labels) : [], // Deserialize labels
+      })),
+      total,
+      limit: filters.limit || 50,
+      offset: filters.offset || 0,
+    }
   }
 
   private async checkBoardAccess(boardId: string, userId: string) {

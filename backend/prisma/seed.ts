@@ -82,7 +82,7 @@ async function main() {
       listId: todoList.id,
       title: 'Set up project structure',
       description: 'Create the basic folder structure and configuration files for the collaborative boards app.',
-      labels: ['setup', 'backend'],
+      labels: JSON.stringify(['setup', 'backend']),
       position: 0,
     },
   })
@@ -95,7 +95,7 @@ async function main() {
       listId: todoList.id,
       title: 'Implement user authentication',
       description: 'Add signup, login, and JWT token management with email verification.',
-      labels: ['auth', 'backend'],
+      labels: JSON.stringify(['auth', 'backend']),
       position: 1,
     },
   })
@@ -108,7 +108,7 @@ async function main() {
       listId: inProgressList.id,
       title: 'Create board CRUD operations',
       description: 'Implement create, read, update, delete operations for boards with proper authorization.',
-      labels: ['boards', 'backend'],
+      labels: JSON.stringify(['boards', 'backend']),
       position: 0,
     },
   })
@@ -121,7 +121,7 @@ async function main() {
       listId: doneList.id,
       title: 'Design database schema',
       description: 'Create Prisma schema with all necessary models and relationships.',
-      labels: ['database', 'design'],
+      labels: JSON.stringify(['database', 'design']),
       position: 0,
     },
   })
@@ -143,7 +143,6 @@ async function main() {
         content: 'Working on implementing the board functionality. @admin please review when done.',
       },
     ],
-    skipDuplicates: true,
   })
 
   console.log('Created demo comments')

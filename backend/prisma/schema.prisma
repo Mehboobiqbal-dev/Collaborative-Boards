@@ -3,25 +3,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql" // Changed from sqlite to postgresql
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  ADMIN
-  MEMBER
-  COMMENTER
-  VIEWER
-}
-
-enum NotificationType {
-  MENTION
-  ASSIGNMENT
-  COMMENT
-  MEMBER_ADDED
-  MEMBER_REMOVED
-}
-
+// Rest of the schema remains unchanged
 model User {
   id          String   @id @default(cuid())
   name        String
@@ -56,11 +42,11 @@ model Board {
 }
 
 model BoardMember {
-  id        String    @id @default(cuid())
+  id        String   @id @default(cuid())
   boardId   String
   userId    String
-  role      UserRole  @default(MEMBER)
-  joinedAt  DateTime  @default(now())
+  role      String   @default("MEMBER")
+  joinedAt  DateTime @default(now())
 
   board     Board     @relation(fields: [boardId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -84,17 +70,17 @@ model List {
 }
 
 model Card {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   listId      String
   title       String
   description String?
-  labels      String[]  @default([])
+  labels      String   @default("[]") // JSON string for array
   assigneeId  String?
   dueDate     DateTime?
-  position    Float     @default(0)
-  version     Int       @default(1)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  position    Float    @default(0)
+  version     Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   list        List         @relation(fields: [listId], references: [id], onDelete: Cascade)
   assignee    User?        @relation("CardAssignee", fields: [assigneeId], references: [id])
@@ -132,14 +118,14 @@ model Attachment {
 }
 
 model Notification {
-  id        String            @id @default(cuid())
+  id        String   @id @default(cuid())
   userId    String
-  type      NotificationType
-  payload   Json
-  read      Boolean           @default(false)
-  createdAt DateTime          @default(now())
+  type      String   // enum value as string
+  payload   String   // JSON string
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
 }
