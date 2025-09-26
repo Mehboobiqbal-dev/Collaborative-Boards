@@ -27,6 +27,7 @@ export const SearchComponent: React.FC<SearchComponentProps> = ({
   const [cardResults, setCardResults] = useState<Card[]>([])
   const [userResults, setUserResults] = useState<User[]>([])
   const [showResults, setShowResults] = useState(false)
+  const [usingFallback, setUsingFallback] = useState(false)
 
   const performSearch = async (searchQuery: string) => {
     if (!searchQuery.trim()) {
@@ -38,6 +39,7 @@ export const SearchComponent: React.FC<SearchComponentProps> = ({
 
     setLoading(true)
     setShowResults(true)
+    setUsingFallback(false)
 
     try {
       const promises = []
@@ -75,6 +77,7 @@ export const SearchComponent: React.FC<SearchComponentProps> = ({
       // Handle timeout or connection errors gracefully
       if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
         console.warn('Backend search timed out, using client-side fallback')
+        setUsingFallback(true)
         
         // Use client-side filtering as fallback
         if (searchType === 'cards' || searchType === 'both') {
@@ -88,6 +91,24 @@ export const SearchComponent: React.FC<SearchComponentProps> = ({
         
         if (searchType === 'users' || searchType === 'both') {
           // No fallback for users since we don't have user data
+          setUserResults([])
+          onUserSearchResults?.([])
+        }
+      } else if (error.response?.status === 500) {
+        // Handle server errors
+        console.warn('Backend search failed with server error, using client-side fallback')
+        setUsingFallback(true)
+        
+        if (searchType === 'cards' || searchType === 'both') {
+          const filteredCards = fallbackData.filter(card =>
+            card.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            card.description?.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+          setCardResults(filteredCards)
+          onSearchResults?.(filteredCards)
+        }
+        
+        if (searchType === 'users' || searchType === 'both') {
           setUserResults([])
           onUserSearchResults?.([])
         }

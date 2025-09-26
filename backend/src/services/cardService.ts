@@ -372,7 +372,7 @@ export class CardService {
     const total = await prisma.card.count({ where })
 
     return {
-      cards: cards.map((card) => ({
+      cards: cards.map((card: any) => ({
         ...nullToUndefinedDeep(card),
         labels: card.labels ? JSON.parse(card.labels) : [], // Deserialize labels
       })),
