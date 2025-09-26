@@ -13,6 +13,7 @@ model User {
   name        String
   email       String   @unique
   passwordHash String
+  googleId    String?
   verified    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

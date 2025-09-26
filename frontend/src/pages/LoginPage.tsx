@@ -16,16 +16,9 @@ const LoginPage: React.FC = () => {
     }
   }
 
-  const handleGoogleLogin = async () => {
-    // For demo purposes, we'll simulate Google OAuth
-    // In a real app, you'd integrate with Google Sign-In SDK
-    const mockIdToken = 'mock-google-id-token-' + Date.now()
-    try {
-      await loginWithGoogle(mockIdToken)
-      navigate('/dashboard')
-    } catch (err) {
-      console.error('Google login failed:', err)
-    }
+  const handleGoogleLogin = () => {
+    // Redirect to backend Google OAuth endpoint
+    window.location.href = `${process.env.REACT_APP_API_URL || 'http://localhost:4000/api'}/auth/google`
   }
 
   return (

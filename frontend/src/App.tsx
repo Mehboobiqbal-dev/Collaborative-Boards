@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import DashboardPage from './pages/DashboardPage'
 import BoardPage from './pages/BoardPage'
+import AuthCallbackPage from './pages/AuthCallbackPage'
 import Layout from './components/Layout'
 import ErrorBoundary from './components/ErrorBoundary'
 import './App.css'
@@ -54,6 +55,10 @@ function App() {
                     <SignupPage />
                   </PublicRoute>
                 }
+              />
+              <Route
+                path="/auth/callback"
+                element={<AuthCallbackPage />}
               />
               <Route
                 path="/dashboard"

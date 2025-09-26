@@ -38,3 +38,27 @@ export const logout = async (req: Request, res: Response) => {
   await authService.logout(req.body.refreshToken)
   res.json({ message: 'Logged out successfully' })
 }
+
+export const googleAuth = async (req: Request, res: Response) => {
+  const authUrl = authService.getGoogleAuthUrl()
+  res.redirect(authUrl)
+}
+
+export const googleCallback = async (req: Request, res: Response) => {
+  try {
+    const { code } = req.query
+    
+    if (!code || typeof code !== 'string') {
+      return res.status(400).json({ error: 'Authorization code is required' })
+    }
+
+    const result = await authService.loginWithGoogle(code)
+    
+    // Redirect to frontend with tokens (in production, use secure cookies or session)
+    const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/callback?access_token=${result.accessToken}&refresh_token=${result.refreshToken}`
+    res.redirect(redirectUrl)
+  } catch (error) {
+    console.error('Google OAuth callback error:', error)
+    res.status(400).json({ error: 'Google authentication failed' })
+  }
+}
