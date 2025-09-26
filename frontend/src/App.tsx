@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import Layout from './components/Layout'
 import ErrorBoundary from './components/ErrorBoundary'
+import SkeletonLoader from './components/SkeletonLoader'
 import './App.css'
 import { RealTimeProvider } from './components/RealTimeProvider'
 
@@ -18,7 +19,7 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const { user, loading } = useAuth()
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>
+    return <SkeletonLoader variant="page" />
   }
 
   return user ? <Layout>{children}</Layout> : <Navigate to="/login" />
