@@ -261,7 +261,9 @@ class ApiService {
     if (filters.limit) params.append('limit', filters.limit.toString())
     if (filters.offset) params.append('offset', filters.offset.toString())
 
-    const response = await this.api.get(`/cards/search?${params.toString()}`)
+    const response = await this.api.get(`/cards/search?${params.toString()}`, {
+      timeout: 5000 // Shorter timeout for search requests
+    })
     return response.data
   }
 
@@ -307,7 +309,9 @@ class ApiService {
     params.append('q', query)
     if (boardId) params.append('boardId', boardId)
     
-    const response = await this.api.get(`/users/search?${params.toString()}`)
+    const response = await this.api.get(`/users/search?${params.toString()}`, {
+      timeout: 5000 // Shorter timeout for search requests
+    })
     return response.data
   }
 }

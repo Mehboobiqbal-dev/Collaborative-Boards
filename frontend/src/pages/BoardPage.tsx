@@ -10,6 +10,7 @@ import { useAuth } from '../hooks/useAuth'
 import { Board, Card, BoardMember, Comment, Attachment, List } from '../types'
 import { showErrorToast, showSuccessToast, getErrorMessage } from '../utils/errorMessages'
 import { BoardSkeleton } from '../components/Skeleton'
+import SearchComponent from '../components/SearchComponent'
 
 interface CardModalProps {
   card: Card
@@ -495,6 +496,7 @@ const BoardPage: React.FC = () => {
   const [showMembersModal, setShowMembersModal] = useState(false)
   const [selectedCard, setSelectedCard] = useState<Card | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Card[]>([])
   const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState({
     labels: [] as string[],
@@ -529,7 +531,10 @@ const BoardPage: React.FC = () => {
 
     let filtered = board.lists.flatMap(list => list.cards)
 
-    if (searchQuery) {
+    // Use search results if available, otherwise use local filtering
+    if (searchResults.length > 0) {
+      filtered = searchResults
+    } else if (searchQuery) {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(card =>
         card.title.toLowerCase().includes(query) ||
@@ -562,7 +567,7 @@ const BoardPage: React.FC = () => {
     }
 
     setFilteredCards(filtered)
-  }, [board, searchQuery, filters])
+  }, [board, searchQuery, searchResults, filters])
 
   const handleDragEnd = async (result: DropResult) => {
     if (!result.destination || !board) return
@@ -829,12 +834,14 @@ const BoardPage: React.FC = () => {
         {/* Search and Filter Bar */}
         <div className="flex flex-wrap gap-4 items-center mb-4">
           <div className="flex-1 min-w-64">
-            <input
-              type="text"
+            <SearchComponent
+              boardId={board?.id}
+              onSearchResults={(results) => {
+                setSearchResults(results)
+              }}
               placeholder="Search cards..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              searchType="cards"
+              className="w-full"
             />
           </div>
           <button

@@ -311,13 +311,12 @@ export class CardService {
   }) {
     const where: any = {}
 
+    // Always check user has access to the board
+    where.list = { board: { members: { some: { userId } } } }
+    
+    // If specific boardId is provided, filter by it
     if (filters.boardId) {
-      where.list = { board: { members: { some: { userId } } } }
-      if (filters.boardId) {
-        where.list.boardId = filters.boardId
-      }
-    } else {
-      where.list = { board: { members: { some: { userId } } } }
+      where.list.boardId = filters.boardId
     }
 
     if (filters.listId) {
