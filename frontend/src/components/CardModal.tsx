@@ -207,6 +207,12 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
                   <textarea
                     value={newComment}
                     onChange={(e) => handleCommentChange(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handleAddComment()
+                      }
+                    }}
                     placeholder="Add a comment... Use @ to mention someone"
                     className="w-full min-h-20 p-3 border border-gray-300 rounded-md mb-2 resize-none"
                   />

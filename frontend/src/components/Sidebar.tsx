@@ -93,7 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <div className="px-3 py-2 text-sm text-gray-500">No boards found</div>
         )}
         {filteredBoards.map((b) => {
-          const active = location.pathname.startsWith(`/boards/${b.id}`)
+          const active = location.pathname.startsWith(getBoardUrl(b.id))
           return (
             <button
               key={b.id}

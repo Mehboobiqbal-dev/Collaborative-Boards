@@ -420,6 +420,11 @@ const BoardPage: React.FC = () => {
                     placeholder="Enter list title..."
                     value={newListTitle}
                     onChange={(e) => setNewListTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleCreateList()
+                      }
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
                     autoFocus
                   />
