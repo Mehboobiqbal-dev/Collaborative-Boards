@@ -8,14 +8,52 @@ class ApiService {
   private refreshPromise: Promise<AuthTokens> | null = null
   private globalPauseUntilMs = 0
   private inflightGet = new Map<string, Promise<any>>()
+  private requestQueue: Array<() => Promise<any>> = []
+  private isProcessingQueue = false
+  private maxConcurrentRequests = 3
+  private activeRequests = 0
 
   constructor() {
     this.api = axios.create({
       baseURL: process.env.REACT_APP_API_URL || 'http://localhost:4000/api',
-      timeout: 10000,
+      timeout: 30000, // Increased timeout to 30 seconds
     })
 
     this.setupInterceptors()
+  }
+
+  private async processQueue() {
+    if (this.isProcessingQueue || this.requestQueue.length === 0) return
+    
+    this.isProcessingQueue = true
+    
+    while (this.requestQueue.length > 0 && this.activeRequests < this.maxConcurrentRequests) {
+      const request = this.requestQueue.shift()
+      if (request) {
+        this.activeRequests++
+        request()
+          .finally(() => {
+            this.activeRequests--
+            this.processQueue()
+          })
+      }
+    }
+    
+    this.isProcessingQueue = false
+  }
+
+  private async queueRequest<T>(requestFn: () => Promise<T>): Promise<T> {
+    return new Promise((resolve, reject) => {
+      this.requestQueue.push(async () => {
+        try {
+          const result = await requestFn()
+          resolve(result)
+        } catch (error) {
+          reject(error)
+        }
+      })
+      this.processQueue()
+    })
   }
 
   private setupInterceptors() {
@@ -55,23 +93,37 @@ class ApiService {
           }
         }
 
-        // Exponential backoff retry for 429 Too Many Requests
-        if (error.response?.status === 429) {
+        // Retry logic for timeout errors and 429 Too Many Requests
+        const isTimeoutError = error.code === 'ECONNABORTED' || error.message?.includes('timeout')
+        const isRateLimitError = error.response?.status === 429
+        
+        if ((isTimeoutError || isRateLimitError)) {
           const maxRetries = 3
-          originalRequest._retry429Count = originalRequest._retry429Count || 0
-          if (originalRequest._retry429Count < maxRetries) {
-            originalRequest._retry429Count += 1
-            // Prefer Retry-After header if present
-            const retryAfterHeader = error.response.headers?.['retry-after']
-            const retryAfterSeconds = retryAfterHeader ? parseInt(retryAfterHeader, 10) : NaN
-            const backoffMs = Math.min(1000 * 2 ** originalRequest._retry429Count, 8000)
-            const delayMs = Number.isFinite(retryAfterSeconds) ? retryAfterSeconds * 1000 : backoffMs
-            // Set a global pause so parallel requests also wait
-            this.globalPauseUntilMs = Date.now() + delayMs
-            // Add a small jitter
-            const jitter = Math.floor(Math.random() * 200)
-            await new Promise((resolve) => setTimeout(resolve, delayMs + jitter))
-            await new Promise((resolve) => setTimeout(resolve, delayMs))
+          originalRequest._retryCount = originalRequest._retryCount || 0
+          
+          if (originalRequest._retryCount < maxRetries) {
+            originalRequest._retryCount += 1
+            
+            let delayMs = 1000 * Math.pow(2, originalRequest._retryCount) // Exponential backoff
+            
+            // For rate limiting, prefer Retry-After header
+            if (isRateLimitError) {
+              const retryAfterHeader = error.response.headers?.['retry-after']
+              const retryAfterSeconds = retryAfterHeader ? parseInt(retryAfterHeader, 10) : NaN
+              if (Number.isFinite(retryAfterSeconds)) {
+                delayMs = retryAfterSeconds * 1000
+              }
+              // Set a global pause so parallel requests also wait
+              this.globalPauseUntilMs = Date.now() + delayMs
+            }
+            
+            // Add a small jitter to prevent thundering herd
+            const jitter = Math.floor(Math.random() * 500)
+            const totalDelay = Math.min(delayMs + jitter, 10000) // Cap at 10 seconds
+            
+            console.log(`Retrying request (attempt ${originalRequest._retryCount}/${maxRetries}) after ${totalDelay}ms due to ${isTimeoutError ? 'timeout' : 'rate limit'}`)
+            
+            await new Promise((resolve) => setTimeout(resolve, totalDelay))
             return this.api(originalRequest)
           }
         }
@@ -140,7 +192,9 @@ class ApiService {
   async getBoards(): Promise<Board[]> {
     const key = 'GET:/boards'
     if (!this.inflightGet.has(key)) {
-      this.inflightGet.set(key, this.api.get('/boards').then(r => r.data).finally(() => this.inflightGet.delete(key)))
+      this.inflightGet.set(key, this.queueRequest(() => 
+        this.api.get('/boards').then(r => r.data)
+      ).finally(() => this.inflightGet.delete(key)))
     }
     return this.inflightGet.get(key) as Promise<Board[]>
   }
@@ -278,8 +332,13 @@ class ApiService {
   }
 
   async getNotifications(limit = 50, offset = 0): Promise<{ notifications: Notification[]; total: number }> {
-    const response = await this.api.get(`/notifications?limit=${limit}&offset=${offset}`)
-    return response.data
+    const key = `GET:/notifications?limit=${limit}&offset=${offset}`
+    if (!this.inflightGet.has(key)) {
+      this.inflightGet.set(key, this.queueRequest(() => 
+        this.api.get(`/notifications?limit=${limit}&offset=${offset}`).then(r => r.data)
+      ).finally(() => this.inflightGet.delete(key)))
+    }
+    return this.inflightGet.get(key) as Promise<{ notifications: Notification[]; total: number }>
   }
 
   async markNotificationRead(notificationId: string): Promise<Notification> {

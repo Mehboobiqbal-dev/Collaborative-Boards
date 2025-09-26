@@ -14,7 +14,12 @@ const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({ onNotific
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    loadNotifications()
+    // Add a small delay to prevent overwhelming the server after login
+    const timer = setTimeout(() => {
+      loadNotifications()
+    }, 200);
+    
+    return () => clearTimeout(timer);
   }, [])
 
   useEffect(() => {

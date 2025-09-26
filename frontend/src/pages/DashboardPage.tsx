@@ -14,7 +14,12 @@ const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadBoards();
+    // Add a small delay to prevent overwhelming the server after login
+    const timer = setTimeout(() => {
+      loadBoards();
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const loadBoards = async () => {
