@@ -40,7 +40,7 @@ export class BoardService {
   }
 
   async getBoard(boardId: string, userId: string): Promise<BoardWithRelations> {
-    const cachedBoard = await cacheService.getBoardSnapshot(boardId)
+    const cachedBoard = await cacheService.getBoardSnapshot(boardId) as BoardWithRelations | null
     if (cachedBoard) {
       return cachedBoard
     }
@@ -87,7 +87,7 @@ export class BoardService {
       throw new Error('Board not found')
     }
 
-    const isMember = board.members.some(member => member.userId === userId)
+    const isMember = board.members.some((member: any) => member.userId === userId)
     if (!isMember) {
       throw new Error('Access denied: not a board member')
     }

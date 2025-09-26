@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Prisma } from '@prisma/client'
 import { cacheService } from '../utils/cache'
 import { CardWithRelations } from '../types'
 import logger from '../utils/logger'

@@ -115,7 +115,7 @@ export class AuthService {
       throw new Error('Invalid or expired refresh token')
     }
 
-    const { accessToken, newRefreshToken } = generateTokens(
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(
       storedToken.user.id,
       storedToken.user.email
     )
