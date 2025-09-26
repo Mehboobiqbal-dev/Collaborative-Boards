@@ -46,7 +46,7 @@ function App() {
         <RealTimeProvider>
         <Router>
           <div className="App">
-            <Suspense fallback={<div className="flex justify-center items-center h-screen">Loading...</div>}>
+            <Suspense fallback={<SkeletonLoader variant="page" />}>
               <Routes>
                 <Route
                   path="/login"

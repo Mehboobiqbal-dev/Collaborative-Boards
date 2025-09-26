@@ -17,13 +17,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  font-size: 18px;
-}
+/* Loading styles removed - now using Tailwind skeleton components */
 
 .auth-container {
   max-width: 400px;
