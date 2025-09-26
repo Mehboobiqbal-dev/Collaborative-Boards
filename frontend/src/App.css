@@ -1,10 +1,14 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
-  --color-primary: #2563EB;
-  --color-secondary: #10B981;
-  --color-accent: #F59E0B;
-  --color-error: #EF4444;
+@layer base {
+  :root {
+    --color-primary: #2563EB;
+    --color-secondary: #10B981;
+    --color-accent: #F59E0B;
+    --color-error: #EF4444;
+  }
 }
 
 .App {
