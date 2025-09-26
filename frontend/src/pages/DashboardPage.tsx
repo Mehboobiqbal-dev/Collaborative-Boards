@@ -1,60 +1,61 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
-import { apiService } from '../services/api'
-import { Board } from '../types'
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { apiService } from '../services/api';
+import { Board } from '../types';
 
 const DashboardPage: React.FC = () => {
-  const [boards, setBoards] = useState<Board[]>([])
-  const [newBoardTitle, setNewBoardTitle] = useState('')
-  const [showCreateForm, setShowCreateForm] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
+  const [boards, setBoards] = useState<Board[]>([]);
+  const [newBoardTitle, setNewBoardTitle] = useState('');
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    loadBoards()
-  }, [])
+    loadBoards();
+  }, []);
 
   const loadBoards = async () => {
     try {
-      const userBoards = await apiService.getBoards()
-      setBoards(userBoards)
+      const userBoards = await apiService.getBoards();
+      console.log('Boards:', userBoards); // Debug API response
+      setBoards(userBoards);
     } catch (error) {
-      console.error('Failed to load boards:', error)
+      console.error('Failed to load boards:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleCreateBoard = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newBoardTitle.trim()) return
+    e.preventDefault();
+    if (!newBoardTitle.trim()) return;
 
     try {
-      const board = await apiService.createBoard(newBoardTitle)
-      setBoards([...boards, board])
-      setNewBoardTitle('')
-      setShowCreateForm(false)
+      const board = await apiService.createBoard(newBoardTitle);
+      setBoards([...boards, board]);
+      setNewBoardTitle('');
+      setShowCreateForm(false);
     } catch (error) {
-      console.error('Failed to create board:', error)
+      console.error('Failed to create board:', error);
     }
-  }
+  };
 
   const handleLogout = async () => {
-    await logout()
-    navigate('/login')
-  }
+    await logout();
+    navigate('/login');
+  };
 
   if (loading) {
-    return <div className="loading">Loading...</div>
+    return <div className="loading">Loading...</div>;
   }
 
   return (
     <div className="dashboard">
       <div className="dashboard-header">
         <div>
-          <h1>Welcome, {user?.name}!</h1>
+          <h1>Welcome, {user?.name ?? 'User'}!</h1>
           <p>Your boards</p>
         </div>
         <div>
@@ -68,24 +69,28 @@ const DashboardPage: React.FC = () => {
       </div>
 
       {showCreateForm && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            background: 'white',
-            padding: '2rem',
-            borderRadius: '8px',
-            width: '400px'
-          }}>
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              background: 'white',
+              padding: '2rem',
+              borderRadius: '8px',
+              width: '400px',
+            }}
+          >
             <h3>Create New Board</h3>
             <form onSubmit={handleCreateBoard}>
               <div className="form-group">
@@ -116,25 +121,26 @@ const DashboardPage: React.FC = () => {
       )}
 
       <div className="board-grid">
-        {boards.map((board) => (
-          <div
-            key={board.id}
-            className="board-card"
-            onClick={() => navigate(`/boards/${board.id}`)}
-          >
-            <h3>{board.title}</h3>
-            <p>Owner: {board.owner.name}</p>
-            <p>{board.members.length} members</p>
-          </div>
-        ))}
-        {boards.length === 0 && (
+        {Array.isArray(boards) && boards.length > 0 ? (
+          boards.map((board) => (
+            <div
+              key={board.id}
+              className="board-card"
+              onClick={() => navigate(`/boards/${board.id}`)}
+            >
+              <h3>{board.title}</h3>
+              <p>Owner: {board.owner?.name ?? 'Unknown'}</p>
+              <p>{board.members.length} members</p>
+            </div>
+          ))
+        ) : (
           <div style={{ textAlign: 'center', padding: '2rem' }}>
             <p>No boards yet. Create your first board to get started!</p>
           </div>
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DashboardPage
+export default DashboardPage;
