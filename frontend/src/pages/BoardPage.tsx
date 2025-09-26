@@ -13,9 +13,9 @@ const BoardPage: React.FC = () => {
   useEffect(() => {
     if (boardId) {
       loadBoard()
-      const socket = socketService.connect(boardId)
+      socketService.connect(boardId)
 
-      socket.onCardCreated((card) => {
+      socketService.onCardCreated((card: Card) => {
         setBoard(prev => prev ? {
           ...prev,
           lists: prev.lists.map(list =>
@@ -26,7 +26,7 @@ const BoardPage: React.FC = () => {
         } : null)
       })
 
-      socket.onCardUpdated((updatedCard) => {
+      socketService.onCardUpdated((updatedCard: Card) => {
         setBoard(prev => prev ? {
           ...prev,
           lists: prev.lists.map(list => ({
@@ -38,7 +38,7 @@ const BoardPage: React.FC = () => {
         } : null)
       })
 
-      socket.onCardMoved((movedCard) => {
+      socketService.onCardMoved((movedCard: Card) => {
         setBoard(prev => prev ? {
           ...prev,
           lists: prev.lists.map(list => ({

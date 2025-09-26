@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
-import { AuthTokens, User, Board, Card, List, Notification } from '../types'
+import { AuthTokens, User, Board, Card, List, Notification, Attachment } from '../types'
 
 class ApiService {
   private api: AxiosInstance
