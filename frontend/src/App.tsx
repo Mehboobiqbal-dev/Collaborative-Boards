@@ -5,16 +5,17 @@ import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import DashboardPage from './pages/DashboardPage'
 import BoardPage from './pages/BoardPage'
+import Layout from './components/Layout'
 import './App.css'
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth()
 
   if (loading) {
-    return <div className="loading">Loading...</div>
+    return <div className="flex justify-center items-center h-screen">Loading...</div>
   }
 
-  return user ? <>{children}</> : <Navigate to="/login" />
+  return user ? <Layout>{children}</Layout> : <Navigate to="/login" />
 }
 
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {

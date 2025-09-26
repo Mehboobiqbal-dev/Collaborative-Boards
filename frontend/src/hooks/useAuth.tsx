@@ -5,6 +5,7 @@ import { apiService } from '../services/api'
 interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<void>
+  loginWithGoogle: (idToken: string) => Promise<void>
   signup: (email: string, password: string, name: string) => Promise<string>
   // removed verifyEmail
   logout: () => Promise<void>
@@ -63,6 +64,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }
 
+  const loginWithGoogle = async (idToken: string) => {
+    try {
+      setError(null)
+      setLoading(true)
+      const tokens = await apiService.loginWithGoogle(idToken)
+      setUser(tokens.user)
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Google login failed')
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const signup = async (email: string, password: string, name: string): Promise<string> => {
     try {
       setError(null)
@@ -93,8 +108,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value: AuthContextType = {
     user,
     login,
+    loginWithGoogle,
     signup,
-    
     logout,
     loading,
     error,

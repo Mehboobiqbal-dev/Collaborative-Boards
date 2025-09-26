@@ -80,6 +80,14 @@ class ApiService {
     return tokens
   }
 
+  async loginWithGoogle(idToken: string): Promise<AuthTokens> {
+    const response = await this.api.post('/auth/google', { idToken })
+    const tokens = response.data
+    localStorage.setItem('accessToken', tokens.accessToken)
+    localStorage.setItem('refreshToken', tokens.refreshToken)
+    return tokens
+  }
+
   async logout(): Promise<{ message: string }> {
     const response = await this.api.post('/auth/logout', {
       refreshToken: localStorage.getItem('refreshToken'),

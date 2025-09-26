@@ -47,30 +47,18 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
-
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return <div className="flex justify-center items-center h-64">Loading...</div>;
   }
 
   return (
-    <div className="dashboard">
-      <div className="dashboard-header">
-        <div>
-          <h1>Welcome, {user?.name ?? 'User'}!</h1>
-          <p>Your boards</p>
-        </div>
-        <div>
-          <button onClick={() => setShowCreateForm(true)} className="btn btn-primary">
-            Create Board
-          </button>
-          <button onClick={handleLogout} className="btn btn-secondary" style={{ marginLeft: '1rem' }}>
-            Logout
-          </button>
-        </div>
+    <div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Welcome, {user?.name ?? 'User'}!</h1>
+        <p className="text-gray-600 mb-6">Your boards</p>
+        <button onClick={() => setShowCreateForm(true)} className="btn btn-primary">
+          Create Board
+        </button>
       </div>
 
       {showCreateForm && (
@@ -125,22 +113,22 @@ const DashboardPage: React.FC = () => {
         </div>
       )}
 
-      <div className="board-grid">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {Array.isArray(boards) && boards.length > 0 ? (
           boards.map((board) => (
             <div
               key={board.id}
-              className="board-card"
+              className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
               onClick={() => navigate(`/boards/${board.id}`)}
             >
-              <h3>{board.title}</h3>
-              <p>Owner: {board.owner?.name ?? 'Unknown'}</p>
-              <p>{board.members?.length ?? 0} members</p>
+              <h3 className="text-lg font-semibold mb-2">{board.title}</h3>
+              <p className="text-sm text-gray-600 mb-1">Owner: {board.owner?.name ?? 'Unknown'}</p>
+              <p className="text-sm text-gray-600">{board.members?.length ?? 0} members</p>
             </div>
           ))
         ) : (
-          <div style={{ textAlign: 'center', padding: '2rem' }}>
-            <p>No boards yet. Create your first board to get started!</p>
+          <div className="col-span-full text-center py-12">
+            <p className="text-gray-500 text-lg">No boards yet. Create your first board to get started!</p>
           </div>
         )}
       </div>
