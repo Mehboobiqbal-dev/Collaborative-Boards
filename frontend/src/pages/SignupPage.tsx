@@ -13,7 +13,7 @@ const SignupPage: React.FC = () => {
     e.preventDefault()
     try {
       await signup(email, password, name)
-      navigate('/verify-email', { state: { email } })
+      navigate('/login')
     } catch (err) {
     }
   }

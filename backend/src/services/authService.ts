@@ -1,11 +1,7 @@
 import { PrismaClient } from '@prisma/client'
-import {
-  hashPassword,
-  verifyPassword,
-  generateTokens,
-  hashRefreshToken,
-  generateEmailVerificationToken,
-} from '../utils/auth'
+import { hashPassword, verifyPassword, generateTokens, hashRefreshToken } from '../utils/auth'
+import jwt from 'jsonwebtoken'
+import axios from 'axios'
 import logger from '../utils/logger'
 
 const prisma = new PrismaClient()
@@ -18,13 +14,13 @@ export class AuthService {
     }
 
     const passwordHash = await hashPassword(password)
-    const verificationToken = generateEmailVerificationToken()
 
     const user = await prisma.user.create({
       data: {
         email,
         passwordHash,
         name,
+        verified: true,
       },
       select: {
         id: true,
@@ -37,31 +33,9 @@ export class AuthService {
 
     logger.info('User signed up', { userId: user.id, email })
 
-    return {
-      user,
-      verificationToken,
-    }
+    return { user }
   }
 
-  async verifyEmail(email: string, token: string) {
-    const user = await prisma.user.findUnique({ where: { email } })
-    if (!user) {
-      throw new Error('User not found')
-    }
-
-    if (user.verified) {
-      throw new Error('User already verified')
-    }
-
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { verified: true },
-    })
-
-    logger.info('User email verified', { userId: user.id, email })
-
-    return { message: 'Email verified successfully' }
-  }
 
   async login(email: string, password: string) {
     const user = await prisma.user.findUnique({ where: { email } })
@@ -69,9 +43,7 @@ export class AuthService {
       throw new Error('Invalid credentials')
     }
 
-    if (!user.verified) {
-      throw new Error('Please verify your email before logging in')
-    }
+    // No email verification required
 
     const isValidPassword = await verifyPassword(user.passwordHash, password)
     if (!isValidPassword) {
@@ -155,6 +127,54 @@ export class AuthService {
     logger.info('User logged out', { tokenHash: tokenHash.substring(0, 8) + '...' })
 
     return { message: 'Logged out successfully' }
+  }
+
+  async loginWithGoogle(idToken: string) {
+    // Verify Google ID token via Google tokeninfo (simple server-side validation)
+    const response = await axios.get('https://oauth2.googleapis.com/tokeninfo', {
+      params: { id_token: idToken },
+    })
+
+    const googleData = response.data as any
+    const email: string = googleData.email
+    const name: string = googleData.name || email.split('@')[0]
+
+    if (!email) {
+      throw new Error('Invalid Google token')
+    }
+
+    let user = await prisma.user.findUnique({ where: { email } })
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          email,
+          name,
+          passwordHash: '',
+          verified: true,
+        },
+      })
+    }
+
+    const { accessToken, refreshToken } = generateTokens(user.id, user.email)
+    const refreshTokenHash = await hashRefreshToken(refreshToken)
+
+    await prisma.refreshToken.create({
+      data: {
+        userId: user.id,
+        tokenHash: refreshTokenHash,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    })
+
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+    }
   }
 }
 

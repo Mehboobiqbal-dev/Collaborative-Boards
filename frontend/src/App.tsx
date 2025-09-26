@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
-import VerifyEmailPage from './pages/VerifyEmailPage'
 import DashboardPage from './pages/DashboardPage'
 import BoardPage from './pages/BoardPage'
 import './App.css'
@@ -47,14 +46,6 @@ function App() {
               element={
                 <PublicRoute>
                   <SignupPage />
-                </PublicRoute>
-              }
-            />
-            <Route
-              path="/verify-email"
-              element={
-                <PublicRoute>
-                  <VerifyEmailPage />
                 </PublicRoute>
               }
             />

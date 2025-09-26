@@ -72,11 +72,6 @@ class ApiService {
     return response.data
   }
 
-  async verifyEmail(email: string, token: string): Promise<{ message: string }> {
-    const response = await this.api.post('/auth/verify', { email, token })
-    return response.data
-  }
-
   async login(credentials: { email: string; password: string }): Promise<AuthTokens> {
     const response = await this.api.post('/auth/login', credentials)
     const tokens = response.data

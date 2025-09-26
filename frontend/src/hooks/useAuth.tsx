@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<void>
   signup: (email: string, password: string, name: string) => Promise<string>
-  verifyEmail: (email: string, token: string) => Promise<void>
+  // removed verifyEmail
   logout: () => Promise<void>
   loading: boolean
   error: string | null
@@ -77,18 +77,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }
 
-  const verifyEmail = async (email: string, token: string) => {
-    try {
-      setError(null)
-      setLoading(true)
-      await apiService.verifyEmail(email, token)
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Email verification failed')
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }
+  
 
   const logout = async () => {
     try {
@@ -105,7 +94,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     login,
     signup,
-    verifyEmail,
+    
     logout,
     loading,
     error,

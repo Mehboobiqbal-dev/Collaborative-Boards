@@ -11,10 +11,7 @@ export const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 })
 
-export const verifyEmailSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  token: z.string().min(1, 'Verification token is required'),
-})
+// removed verifyEmailSchema
 
 export const refreshTokenSchema = z.object({
   refreshToken: z.string().min(1, 'Refresh token is required'),
@@ -87,7 +84,13 @@ export const markNotificationReadSchema = z.object({
 
 export type SignupInput = z.infer<typeof signupSchema>
 export type LoginInput = z.infer<typeof loginSchema>
-export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>
+// removed VerifyEmailInput
+
+export const googleLoginSchema = z.object({
+  idToken: z.string().min(1, 'Google ID token is required'),
+})
+
+export type GoogleLoginInput = z.infer<typeof googleLoginSchema>
 export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>
 export type CreateBoardInput = z.infer<typeof createBoardSchema>
 export type UpdateBoardInput = z.infer<typeof updateBoardSchema>
