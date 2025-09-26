@@ -5,7 +5,8 @@ import ReactMarkdown from 'react-markdown'
 import { apiService } from '../services/api'
 import { socketService } from '../services/socket'
 import { useAuth } from '../hooks/useAuth'
-import { Board, Card, BoardMember, Comment, Attachment } from '../types'
+import { Board, Card, BoardMember, Comment, Attachment, List } from '../types'
+import { showErrorToast, showSuccessToast } from '../utils/errorMessages'
 
 interface CardModalProps {
   card: Card
@@ -46,7 +47,7 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
       setEditing(false)
     } catch (error) {
       console.error('Failed to update card:', error)
-      alert('Failed to update card')
+      showErrorToast('Failed to update card')
     } finally {
       setLoading(false)
     }
@@ -59,11 +60,11 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
     setCommentLoading(true)
     try {
       const comment = await apiService.addComment(card.id, newComment)
-      setComments(prev => [comment, ...prev])
+      setComments(prev => [comment as Comment, ...prev])
       setNewComment('')
     } catch (error) {
       console.error('Failed to add comment:', error)
-      alert('Failed to add comment')
+      showErrorToast('Failed to add comment')
     } finally {
       setCommentLoading(false)
     }
@@ -204,17 +205,34 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
 
             <div style={{ marginBottom: '2rem' }}>
               <h3>Comments</h3>
-              <form onSubmit={handleAddComment} style={{ marginBottom: '1rem' }}>
-                <textarea
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Add a comment..."
-                  style={{ width: '100%', minHeight: '80px', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px', marginBottom: '0.5rem' }}
-                />
-                <button type="submit" className="btn btn-primary" disabled={commentLoading}>
-                  {commentLoading ? 'Adding...' : 'Add Comment'}
-                </button>
-              </form>
+              <div className="relative">
+                <form onSubmit={handleAddComment} style={{ marginBottom: '1rem' }}>
+                  <textarea
+                    value={newComment}
+                    onChange={(e) => handleCommentChange(e.target.value)}
+                    placeholder="Add a comment... Use @ to mention someone"
+                    className="w-full min-h-20 p-3 border border-gray-300 rounded-md mb-2 resize-none"
+                  />
+                  <button type="submit" className="btn btn-primary" disabled={commentLoading}>
+                    {commentLoading ? 'Adding...' : 'Add Comment'}
+                  </button>
+                </form>
+
+                {showMentions && filteredMembers.length > 0 && (
+                  <div className="absolute bottom-full left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto z-10">
+                    {filteredMembers.map((member) => (
+                      <div
+                        key={member.userId}
+                        onClick={() => handleMentionSelect(member.user)}
+                        className="p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+                      >
+                        <div className="font-medium">{member.user.name}</div>
+                        <div className="text-sm text-gray-500">{member.user.email}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               <div>
                 {comments.map((comment) => (
@@ -764,7 +782,7 @@ const BoardPage: React.FC = () => {
     }
   }
 
-  const startEditingList = (list: List) => {
+  const startEditingList = (list: any) => {
     setEditingListId(list.id)
     setEditingListTitle(list.title)
   }
@@ -852,7 +870,7 @@ const BoardPage: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All assignees</option>
-                  {board.members.map((member) => (
+                  {board?.members.map((member) => (
                     <option key={member.userId} value={member.userId}>
                       {member.user.name}
                     </option>
@@ -967,7 +985,7 @@ const BoardPage: React.FC = () => {
                 </div>
               </div>
               <Droppable droppableId={list.id}>
-                {(provided, snapshot) => (
+                {(provided: any, snapshot: any) => (
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
@@ -977,7 +995,7 @@ const BoardPage: React.FC = () => {
                   >
                     {list.cards.map((card, index) => (
                       <Draggable key={card.id} draggableId={card.id} index={index}>
-                        {(provided, snapshot) => (
+                        {(provided: any, snapshot: any) => (
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}

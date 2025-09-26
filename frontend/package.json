@@ -31,6 +31,7 @@
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.6.0",
     "react-markdown": "^9.0.1",
     "react-router-dom": "^6.19.0",
     "socket.io-client": "^4.7.4",
@@ -38,6 +39,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.8",
+    "@types/react-beautiful-dnd": "^13.1.8",
     "@typescript-eslint/eslint-plugin": "^6.13.1",
     "@typescript-eslint/parser": "^6.13.1",
     "autoprefixer": "^10.4.21",

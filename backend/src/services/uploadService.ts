@@ -3,7 +3,8 @@ import path from 'path'
 import { PrismaClient } from '@prisma/client'
 import { cacheService } from '../utils/cache'
 import logger from '../utils/logger'
-import { Multer } from 'multer'
+import { Request } from 'express'
+import * as Express from 'express'
 
 const prisma = new PrismaClient()
 
@@ -14,7 +15,7 @@ export class UploadService {
     this.uploadPath = process.env.UPLOAD_PATH || './uploads'
   }
 
-  async saveFile(cardId: string, userId: string, file: Multer.File) {
+  async saveFile(cardId: string, userId: string, file: Express.Multer.File) {
     const card = await prisma.card.findUnique({
       where: { id: cardId },
       select: {
@@ -125,7 +126,7 @@ export class UploadService {
     }
   }
 
-  private async validateFile(file: Multer.File) {
+  private async validateFile(file: Express.Multer.File) {
     const allowedTypes = (process.env.ALLOWED_FILE_TYPES || '').split(',')
     const maxSize = parseInt(process.env.MAX_FILE_SIZE || '10485760') // 10MB default
 
