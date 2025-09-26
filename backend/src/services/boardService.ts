@@ -44,11 +44,15 @@ export class BoardService {
   }
 
   async getBoard(boardId: string, userId: string): Promise<BoardWithRelations> {
+    console.log('BoardService.getBoard called with:', { boardId, userId })
+    
     const cachedBoard = await cacheService.getBoardSnapshot(boardId) as BoardWithRelations | null
     if (cachedBoard) {
+      console.log('Returning cached board:', cachedBoard.id)
       return cachedBoard
     }
 
+    console.log('Fetching board from database...')
     const board = await prisma.board.findUnique({
       where: { id: boardId },
       include: {
@@ -87,12 +91,19 @@ export class BoardService {
       },
     })
 
+    console.log('Database query result:', board ? 'Board found' : 'Board not found')
+    
     if (!board) {
+      console.log('Board not found in database:', boardId)
       throw new Error('Board not found')
     }
 
+    console.log('Board found, checking membership. Board members:', board.members.map(m => m.userId))
     const isMember = board.members.some((member: any) => member.userId === userId)
+    console.log('User is member:', isMember, 'User ID:', userId)
+    
     if (!isMember) {
+      console.log('Access denied: user not a board member')
       throw new Error('Access denied: not a board member')
     }
 

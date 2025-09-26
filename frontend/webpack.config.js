@@ -108,6 +108,25 @@ module.exports = {
     compress: true,
     port: 3000,
     historyApiFallback: true,
+    // Fix for URI malformed error with CUID-based board IDs
+    setupMiddlewares: (middlewares, devServer) => {
+      // Add middleware to handle malformed URI errors
+      devServer.app.use((req, res, next) => {
+        try {
+          // Try to decode the URL to catch malformed URIs early
+          decodeURIComponent(req.url)
+          next()
+        } catch (error) {
+          if (error instanceof URIError) {
+            console.warn('Malformed URI detected, redirecting to dashboard:', req.url)
+            res.redirect('/dashboard')
+          } else {
+            next(error)
+          }
+        }
+      })
+      return middlewares
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:4000',

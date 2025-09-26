@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Droppable, Draggable } from 'react-beautiful-dnd'
+import { Droppable, Draggable } from '@hello-pangea/dnd'
 import Swal from 'sweetalert2'
 import { apiService } from '../services/api'
 import { List, Card } from '../types'

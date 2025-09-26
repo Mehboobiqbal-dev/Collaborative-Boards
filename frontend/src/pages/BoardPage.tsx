@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { DragDropContext, DropResult } from 'react-beautiful-dnd'
+import { DragDropContext, DropResult } from '@hello-pangea/dnd'
 import { apiService } from '../services/api'
 import { useRealTime } from '../components/RealTimeProvider'
 import { useAuth } from '../hooks/useAuth'
@@ -190,8 +190,17 @@ const BoardPage: React.FC = () => {
     try {
       const boardData = await apiService.getBoard(boardId)
       setBoard(boardData)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load board:', error)
+      
+      if (error.response?.status === 404) {
+        showErrorToast('Board not found. It may have been deleted or you may not have access to it.')
+      } else if (error.response?.status === 403) {
+        showErrorToast('Access denied. You do not have permission to view this board.')
+      } else {
+        showErrorToast('Failed to load board. Please try again.')
+      }
+      
       navigate('/dashboard')
     } finally {
       setLoading(false)

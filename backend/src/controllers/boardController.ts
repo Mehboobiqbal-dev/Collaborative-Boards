@@ -9,9 +9,25 @@ export const createBoard = async (req: AuthRequest, res: Response) => {
 }
 
 export const getBoard = async (req: AuthRequest, res: Response) => {
-  const board = await boardService.getBoard(req.params.id, req.user!.id)
-
-  res.json(board)
+  try {
+    console.log('getBoard controller called with:', { boardId: req.params.id, userId: req.user!.id })
+    const board = await boardService.getBoard(req.params.id, req.user!.id)
+    console.log('Board retrieved successfully:', board.id)
+    res.json(board)
+  } catch (error: any) {
+    console.log('Error in getBoard controller:', error.message)
+    if (error.message === 'Board not found') {
+      return res.status(404).json({ error: 'Board not found' })
+    }
+    if (error.message === 'Access denied: not a board member') {
+      return res.status(403).json({ error: 'Access denied: not a board member' })
+    }
+    if (error.message === 'Access denied: insufficient permissions') {
+      return res.status(403).json({ error: 'Access denied: insufficient permissions' })
+    }
+    console.error('Error in getBoard:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
 }
 
 export const updateBoard = async (req: AuthRequest, res: Response) => {

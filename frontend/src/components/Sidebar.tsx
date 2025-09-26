@@ -34,7 +34,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       const board = await apiService.createBoard(title)
       setBoards(prev => [...prev, board])
       setTitle('')
-      navigate(`/boards/${board.id}`)
+      // Ensure proper URL encoding for board ID
+      const encodedBoardId = encodeURIComponent(board.id)
+      navigate(`/boards/${encodedBoardId}`)
       onClose()
     } finally {
       setCreating(false)
@@ -96,7 +98,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           return (
             <button
               key={b.id}
-              onClick={() => { navigate(`/boards/${b.id}`); onClose() }}
+              onClick={() => { 
+                const encodedBoardId = encodeURIComponent(b.id)
+                navigate(`/boards/${encodedBoardId}`)
+                onClose() 
+              }}
               className={`w-full flex items-center gap-2 text-left px-3 py-2 rounded-md mb-1 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${active ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-600' : 'text-gray-800'}`}
               aria-current={active ? 'page' : undefined}
             >
