@@ -1,4 +1,7 @@
-/* Basic CSS without Tailwind for now */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
 :root {
   --color-primary: #2563EB;
   --color-secondary: #10B981;
@@ -102,7 +105,7 @@
 }
 
 .btn-primary {
-  @apply bg-primary text-white hover:bg-blue-700 focus:ring-primary;
+  @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
 }
 
 .btn-secondary {
@@ -110,5 +113,5 @@
 }
 
 .btn-danger {
-  @apply bg-error text-white hover:bg-red-700 focus:ring-error;
+  @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
 }
