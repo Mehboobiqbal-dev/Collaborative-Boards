@@ -6,8 +6,32 @@ module.exports = {
   entry: './src/index.tsx',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js',
+    filename: '[name].[contenthash].js',
+    chunkFilename: '[name].[contenthash].chunk.js',
     publicPath: '/',
+    clean: true,
+  },
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+        react: {
+          test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+          name: 'react',
+          chunks: 'all',
+        },
+        ui: {
+          test: /[\\/]node_modules[\\/](react-beautiful-dnd|sweetalert2|react-markdown)[\\/]/,
+          name: 'ui-libs',
+          chunks: 'all',
+        },
+      },
+    },
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],

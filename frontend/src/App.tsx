@@ -1,16 +1,18 @@
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './hooks/useAuth'
-import LoginPage from './pages/LoginPage'
-import SignupPage from './pages/SignupPage'
-import DashboardPage from './pages/DashboardPage'
-import BoardPage from './pages/BoardPage'
-import AuthCallbackPage from './pages/AuthCallbackPage'
 import Layout from './components/Layout'
 import ErrorBoundary from './components/ErrorBoundary'
 import './App.css'
 import { RealTimeProvider } from './components/RealTimeProvider'
+
+// Lazy load page components
+const LoginPage = lazy(() => import('./pages/LoginPage'))
+const SignupPage = lazy(() => import('./pages/SignupPage'))
+const DashboardPage = lazy(() => import('./pages/DashboardPage'))
+const BoardPage = lazy(() => import('./pages/BoardPage'))
+const AuthCallbackPage = lazy(() => import('./pages/AuthCallbackPage'))
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth()
@@ -39,45 +41,47 @@ function App() {
         <RealTimeProvider>
         <Router>
           <div className="App">
-            <Routes>
-              <Route
-                path="/login"
-                element={
-                  <PublicRoute>
-                    <LoginPage />
-                  </PublicRoute>
-                }
-              />
-              <Route
-                path="/signup"
-                element={
-                  <PublicRoute>
-                    <SignupPage />
-                  </PublicRoute>
-                }
-              />
-              <Route
-                path="/auth/callback"
-                element={<AuthCallbackPage />}
-              />
-              <Route
-                path="/dashboard"
-                element={
-                  <PrivateRoute>
-                    <DashboardPage />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/boards/:boardId"
-                element={
-                  <PrivateRoute>
-                    <BoardPage />
-                  </PrivateRoute>
-                }
-              />
-              <Route path="/" element={<Navigate to="/dashboard" />} />
-            </Routes>
+            <Suspense fallback={<div className="flex justify-center items-center h-screen">Loading...</div>}>
+              <Routes>
+                <Route
+                  path="/login"
+                  element={
+                    <PublicRoute>
+                      <LoginPage />
+                    </PublicRoute>
+                  }
+                />
+                <Route
+                  path="/signup"
+                  element={
+                    <PublicRoute>
+                      <SignupPage />
+                    </PublicRoute>
+                  }
+                />
+                <Route
+                  path="/auth/callback"
+                  element={<AuthCallbackPage />}
+                />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <PrivateRoute>
+                      <DashboardPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/boards/:boardId"
+                  element={
+                    <PrivateRoute>
+                      <BoardPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route path="/" element={<Navigate to="/dashboard" />} />
+              </Routes>
+            </Suspense>
             <Toaster
               position="bottom-right"
               toastOptions={{
