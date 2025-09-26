@@ -93,7 +93,16 @@ export class CardService {
 
     await this.checkBoardAccess(card.list.boardId, userId)
 
-    return card
+    // Transform Prisma result to match our interface types
+    const transformedCard: CardWithRelations = {
+      ...card,
+      description: card.description ?? undefined,
+      assigneeId: card.assigneeId ?? undefined,
+      dueDate: card.dueDate ?? undefined,
+      assignee: card.assignee ?? undefined,
+    }
+
+    return transformedCard
   }
 
   async updateCard(cardId: string, userId: string, data: {
