@@ -92,9 +92,24 @@ export class BoardService {
       throw new Error('Access denied: not a board member')
     }
 
-    await cacheService.setBoardSnapshot(boardId, board)
+    // Transform Prisma result to match our interface types
+    const transformedBoard: BoardWithRelations = {
+      ...board,
+      lists: board.lists.map((list: any) => ({
+        ...list,
+        cards: list.cards.map((card: any) => ({
+          ...card,
+          description: card.description ?? undefined, // Convert null to undefined
+          assigneeId: card.assigneeId ?? undefined, // Convert null to undefined
+          dueDate: card.dueDate ?? undefined, // Convert null to undefined
+          assignee: card.assignee ?? undefined, // Convert null to undefined
+        })),
+      })),
+    }
 
-    return board
+    await cacheService.setBoardSnapshot(boardId, transformedBoard)
+
+    return transformedBoard
   }
 
   async updateBoard(boardId: string, userId: string, title: string) {
