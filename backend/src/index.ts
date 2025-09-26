@@ -1,6 +1,10 @@
+import * as dotenv from 'dotenv'
+dotenv.config()
+
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
+import 'express-async-errors'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import { errorHandler } from './middleware/errorHandler'
@@ -24,9 +28,6 @@ const io = new Server(server, {
     methods: ['GET', 'POST'],
   },
 })
-import * as dotenv from 'dotenv';
-dotenv.config();
-console.log('MONGO_URI:', process.env.MONGO_URI); // Debug
 
 app.use(helmet())
 app.use(cors())

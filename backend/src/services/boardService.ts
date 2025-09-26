@@ -7,6 +7,8 @@ const prisma = new PrismaClient()
 
 export class BoardService {
   async createBoard(ownerId: string, title: string) {
+    console.log('BoardService.createBoard called with:', { ownerId, title })
+
     const board = await prisma.board.create({
       data: {
         title,
@@ -31,6 +33,8 @@ export class BoardService {
         },
       },
     })
+
+    console.log('Prisma board.create completed, board ID:', board.id)
 
     await cacheService.invalidateBoardCache(board.id)
 

@@ -5,8 +5,13 @@ class CacheService {
 
   async connect() {
     if (!this.client) {
-      this.client = createClient({ url: process.env.REDIS_URL })
-      await this.client.connect()
+      try {
+        this.client = createClient({ url: process.env.REDIS_URL || 'redis://localhost:6379' })
+        await this.client.connect()
+      } catch (error) {
+        console.warn('Redis connection failed, caching disabled:', error)
+        this.client = null
+      }
     }
     return this.client
   }
@@ -14,6 +19,7 @@ class CacheService {
   async get<T>(key: string): Promise<T | null> {
     try {
       const client = await this.connect()
+      if (!client) return null
       const data = await client.get(key)
       return data ? JSON.parse(data) : null
     } catch {
@@ -24,6 +30,7 @@ class CacheService {
   async set(key: string, value: any, ttlSeconds?: number): Promise<void> {
     try {
       const client = await this.connect()
+      if (!client) return
       const data = JSON.stringify(value)
       if (ttlSeconds) {
         await client.setEx(key, ttlSeconds, data)
@@ -38,6 +45,7 @@ class CacheService {
   async del(key: string): Promise<void> {
     try {
       const client = await this.connect()
+      if (!client) return
       await client.del(key)
     } catch {
       // Ignore cache errors

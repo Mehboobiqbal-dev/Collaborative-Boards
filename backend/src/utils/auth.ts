@@ -15,6 +15,7 @@ export const verifyPassword = async (hash: string, password: string): Promise<bo
 }
 
 export const generateTokens = (userId: string, email: string) => {
+  console.log('Generating token with secret:', process.env.JWT_ACCESS_SECRET ? 'SET' : 'NOT SET')
   const accessToken = jwt.sign(
     { userId, email },
     process.env.JWT_ACCESS_SECRET!,
@@ -28,8 +29,14 @@ export const generateTokens = (userId: string, email: string) => {
 
 export const verifyAccessToken = (token: string) => {
   try {
-    return jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as { userId: string; email: string }
-  } catch {
+    console.log('Verifying token with secret:', process.env.JWT_ACCESS_SECRET ? 'SET' : 'NOT SET')
+    console.log('Secret length:', process.env.JWT_ACCESS_SECRET?.length)
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as { userId: string; email: string }
+    console.log('Token verified successfully for user:', decoded.email)
+    return decoded
+  } catch (error) {
+    console.log('Token verification failed:', error)
+    console.log('Token being verified:', token.substring(0, 50) + '...')
     return null
   }
 }
