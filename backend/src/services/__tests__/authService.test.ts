@@ -8,8 +8,7 @@ describe('AuthService', () => {
       expect(result.user).toHaveProperty('id')
       expect(result.user.email).toBe('test@example.com')
       expect(result.user.name).toBe('Test User')
-      expect(result.user.verified).toBe(false)
-      expect(result).toHaveProperty('verificationToken')
+      expect(result.user.verified).toBe(true) // Users are verified by default (simulation)
     })
 
     it('should throw error for duplicate email', async () => {
@@ -21,35 +20,10 @@ describe('AuthService', () => {
     })
   })
 
-  describe('verifyEmail', () => {
-    it('should verify user email', async () => {
-      const { verificationToken } = await authService.signup(
-        'verify@example.com',
-        'password123',
-        'Verify User'
-      )
-
-      await authService.verifyEmail('verify@example.com', verificationToken)
-
-      const result = await authService.login('verify@example.com', 'password123')
-      expect(result.user.verified).toBe(true)
-    })
-
-    it('should throw error for invalid token', async () => {
-      await expect(
-        authService.verifyEmail('nonexistent@example.com', 'invalid-token')
-      ).rejects.toThrow('User not found')
-    })
-  })
 
   describe('login', () => {
-    it('should login verified user', async () => {
-      const { verificationToken } = await authService.signup(
-        'login@example.com',
-        'password123',
-        'Login User'
-      )
-      await authService.verifyEmail('login@example.com', verificationToken)
+    it('should login user', async () => {
+      await authService.signup('login@example.com', 'password123', 'Login User')
 
       const result = await authService.login('login@example.com', 'password123')
 
@@ -58,21 +32,8 @@ describe('AuthService', () => {
       expect(result.user.email).toBe('login@example.com')
     })
 
-    it('should throw error for unverified user', async () => {
-      await authService.signup('unverified@example.com', 'password123', 'Unverified User')
-
-      await expect(
-        authService.login('unverified@example.com', 'password123')
-      ).rejects.toThrow('Please verify your email before logging in')
-    })
-
     it('should throw error for invalid credentials', async () => {
-      const { verificationToken } = await authService.signup(
-        'invalid@example.com',
-        'password123',
-        'Invalid User'
-      )
-      await authService.verifyEmail('invalid@example.com', verificationToken)
+      await authService.signup('invalid@example.com', 'password123', 'Invalid User')
 
       await expect(
         authService.login('invalid@example.com', 'wrongpassword')

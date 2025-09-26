@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Response, NextFunction } from 'express'
 import { verifyAccessToken } from '../utils/auth'
 import { AuthRequest } from '../types'
 import logger from '../utils/logger'

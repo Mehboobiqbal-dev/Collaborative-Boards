@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { cacheService } from '../utils/cache'
-import { BoardWithRelations, BoardMemberRole } from '../types'
+import { BoardWithRelations } from '../types'
 import logger from '../utils/logger'
 
 const prisma = new PrismaClient()

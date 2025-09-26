@@ -31,6 +31,7 @@ class CacheService {
         await client.set(key, data)
       }
     } catch {
+      // Ignore cache errors
     }
   }
 
@@ -39,6 +40,7 @@ class CacheService {
       const client = await this.connect()
       await client.del(key)
     } catch {
+      // Ignore cache errors
     }
   }
 

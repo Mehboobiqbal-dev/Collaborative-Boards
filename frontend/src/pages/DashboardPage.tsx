@@ -20,7 +20,12 @@ const DashboardPage: React.FC = () => {
     try {
       const userBoards = await apiService.getBoards();
       console.log('Boards:', userBoards); // Debug API response
-      setBoards(userBoards);
+      setBoards(
+        userBoards.map(board => ({
+          ...board,
+          members: board.members ?? [], // Default to empty array
+        }))
+      );
     } catch (error) {
       console.error('Failed to load boards:', error);
     } finally {
@@ -34,7 +39,7 @@ const DashboardPage: React.FC = () => {
 
     try {
       const board = await apiService.createBoard(newBoardTitle);
-      setBoards([...boards, board]);
+      setBoards([...boards, { ...board, members: board.members ?? [] }]);
       setNewBoardTitle('');
       setShowCreateForm(false);
     } catch (error) {
@@ -130,7 +135,7 @@ const DashboardPage: React.FC = () => {
             >
               <h3>{board.title}</h3>
               <p>Owner: {board.owner?.name ?? 'Unknown'}</p>
-              <p>{board.members.length} members</p>
+              <p>{board.members?.length ?? 0} members</p>
             </div>
           ))
         ) : (

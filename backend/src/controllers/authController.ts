@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
 import { authService } from '../services/authService'
-import { AuthRequest } from '../types'
 
 export const signup = async (req: Request, res: Response) => {
   const { user } = await authService.signup(

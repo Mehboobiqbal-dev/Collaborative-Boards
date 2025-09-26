@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client'
 import { hashPassword, verifyPassword, generateTokens, hashRefreshToken } from '../utils/auth'
-import jwt from 'jsonwebtoken'
 import axios from 'axios'
 import logger from '../utils/logger'
 

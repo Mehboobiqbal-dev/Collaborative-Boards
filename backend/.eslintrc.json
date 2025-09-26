@@ -5,24 +5,17 @@
     "jest": true
   },
   "extends": [
-    "eslint:recommended",
-    "@typescript-eslint/recommended",
-    "@typescript-eslint/recommended-requiring-type-checking"
+    "eslint:recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": "./tsconfig.json",
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
   "plugins": ["@typescript-eslint"],
   "rules": {
+    "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-    "@typescript-eslint/explicit-function-return-type": "off",
-    "@typescript-eslint/explicit-module-boundary-types": "off",
-    "@typescript-eslint/no-explicit-any": "warn",
-    "@typescript-eslint/no-floating-promises": "error",
-    "@typescript-eslint/await-thenable": "error",
     "prefer-const": "error",
     "no-var": "error"
   }

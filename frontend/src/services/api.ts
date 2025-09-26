@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
-import { AuthTokens, User, Board, Card, List, Notification, Attachment } from '../types'
+import { AuthTokens, User, Board, BoardMember, Card, List, Notification, Attachment } from '../types'
 
 class ApiService {
   private api: AxiosInstance
@@ -116,6 +116,21 @@ class ApiService {
 
   async deleteBoard(boardId: string): Promise<{ message: string }> {
     const response = await this.api.delete(`/boards/${boardId}`)
+    return response.data
+  }
+
+  async addBoardMember(boardId: string, email: string, role: string): Promise<BoardMember> {
+    const response = await this.api.post(`/boards/${boardId}/members`, { email, role })
+    return response.data
+  }
+
+  async updateBoardMember(boardId: string, memberId: string, role: string): Promise<BoardMember> {
+    const response = await this.api.patch(`/boards/${boardId}/members/${memberId}`, { role })
+    return response.data
+  }
+
+  async removeBoardMember(boardId: string, memberId: string): Promise<{ message: string }> {
+    const response = await this.api.delete(`/boards/${boardId}/members/${memberId}`)
     return response.data
   }
 
