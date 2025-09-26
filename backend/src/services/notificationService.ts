@@ -1,4 +1,12 @@
-import { PrismaClient, NotificationType } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
+
+enum NotificationType {
+  MENTION = 'MENTION',
+  ASSIGNMENT = 'ASSIGNMENT',
+  COMMENT = 'COMMENT',
+  MEMBER_ADDED = 'MEMBER_ADDED',
+  MEMBER_REMOVED = 'MEMBER_REMOVED',
+}
 import logger from '../utils/logger'
 
 const prisma = new PrismaClient()
@@ -62,7 +70,7 @@ export class NotificationService {
     })
 
     const notifications = await Promise.all(
-      members.map(member =>
+      members.map((member: any) =>
         this.createNotification(member.userId, type, payload)
       )
     )
@@ -90,8 +98,8 @@ export class NotificationService {
 
     const notifications = await Promise.all(
       users
-        .filter(user => user.id !== excludeUserId)
-        .map(user =>
+        .filter((user: any) => user.id !== excludeUserId)
+        .map((user: any) =>
           this.createNotification(user.id, NotificationType.MENTION, {
             cardId,
             boardId,

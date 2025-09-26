@@ -18,7 +18,7 @@ export const generateTokens = (userId: string, email: string) => {
   const accessToken = jwt.sign(
     { userId, email },
     process.env.JWT_ACCESS_SECRET!,
-    { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m' }
+    { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m' } as any
   )
 
   const refreshToken = crypto.randomBytes(40).toString('hex')
