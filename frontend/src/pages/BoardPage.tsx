@@ -13,7 +13,9 @@ import CardModal from '../components/CardModal'
 import MembersModal from '../components/MembersModal'
 
 const BoardPage: React.FC = () => {
-  const { boardId } = useParams<{ boardId: string }>()
+  const { boardId: rawBoardId } = useParams<{ boardId: string }>()
+  // Decode the board ID to handle URL encoding
+  const boardId = rawBoardId ? decodeURIComponent(rawBoardId) : undefined
   const [board, setBoard] = useState<Board | null>(null)
   const [loading, setLoading] = useState(true)
   const [showMembersModal, setShowMembersModal] = useState(false)

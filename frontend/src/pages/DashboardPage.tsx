@@ -131,7 +131,10 @@ const DashboardPage: React.FC = () => {
             <div
               key={board.id}
               className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => navigate(`/boards/${board.id}`)}
+              onClick={() => {
+                const encodedBoardId = encodeURIComponent(board.id)
+                navigate(`/boards/${encodedBoardId}`)
+              }}
             >
               <h3 className="text-lg font-semibold mb-2">{board.title}</h3>
               <p className="text-sm text-gray-600 mb-1">Owner: {board.owner?.name ?? 'Unknown'}</p>
