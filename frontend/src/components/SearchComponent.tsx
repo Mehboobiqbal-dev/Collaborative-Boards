@@ -10,6 +10,7 @@ interface SearchComponentProps {
   searchType?: 'cards' | 'users' | 'both'
   className?: string
   placeholder?: string
+  fallbackData?: Card[] // For client-side fallback when backend is slow
 }
 
 export const SearchComponent: React.FC<SearchComponentProps> = ({
@@ -18,7 +19,8 @@ export const SearchComponent: React.FC<SearchComponentProps> = ({
   onUserSearchResults,
   searchType = 'cards',
   className = '',
-  placeholder = 'Search...'
+  placeholder = 'Search...',
+  fallbackData = []
 }) => {
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
@@ -72,12 +74,23 @@ export const SearchComponent: React.FC<SearchComponentProps> = ({
       
       // Handle timeout or connection errors gracefully
       if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
-        console.warn('Backend search timed out, search functionality may be limited')
-        // Don't show error to user, just return empty results
-        setCardResults([])
-        setUserResults([])
-        onSearchResults?.([])
-        onUserSearchResults?.([])
+        console.warn('Backend search timed out, using client-side fallback')
+        
+        // Use client-side filtering as fallback
+        if (searchType === 'cards' || searchType === 'both') {
+          const filteredCards = fallbackData.filter(card =>
+            card.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            card.description?.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+          setCardResults(filteredCards)
+          onSearchResults?.(filteredCards)
+        }
+        
+        if (searchType === 'users' || searchType === 'both') {
+          // No fallback for users since we don't have user data
+          setUserResults([])
+          onUserSearchResults?.([])
+        }
       } else {
         // For other errors, still return empty results
         setCardResults([])

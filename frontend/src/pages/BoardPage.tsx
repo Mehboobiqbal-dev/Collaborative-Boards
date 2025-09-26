@@ -842,6 +842,7 @@ const BoardPage: React.FC = () => {
               placeholder="Search cards..."
               searchType="cards"
               className="w-full"
+              fallbackData={board?.lists.flatMap(list => list.cards) || []}
             />
           </div>
           <button
