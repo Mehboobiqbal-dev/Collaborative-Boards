@@ -52,11 +52,15 @@ const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({ onNotific
 
   const loadNotifications = async () => {
     try {
+      setLoading(true)
       const result = await apiService.getNotifications(20, 0)
       setNotifications(result.notifications)
       setUnreadCount(result.notifications.filter(n => !n.read).length)
     } catch (error) {
       console.error('Failed to load notifications:', error)
+      // Don't show error toast for notifications as it's not critical
+    } finally {
+      setLoading(false)
     }
   }
 
