@@ -1,6 +1,26 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const webpack = require('webpack')
+const fs = require('fs')
+
+// Determine the correct template path
+const getTemplatePath = () => {
+  const possiblePaths = [
+    path.resolve(__dirname, 'public/index.html'),
+    path.resolve(__dirname, '../frontend/public/index.html'),
+    path.resolve(process.cwd(), 'frontend/public/index.html'),
+    path.resolve(process.cwd(), 'public/index.html')
+  ]
+  
+  for (const templatePath of possiblePaths) {
+    if (fs.existsSync(templatePath)) {
+      return templatePath
+    }
+  }
+  
+  // Fallback to the original path
+  return path.resolve(__dirname, 'public/index.html')
+}
 
 module.exports = {
   entry: './src/index.tsx',
@@ -80,7 +100,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, 'public/index.html'),
+      template: getTemplatePath(),
       inject: true,
       minify: {
         removeComments: true,
