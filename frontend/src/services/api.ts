@@ -15,7 +15,7 @@ class ApiService {
 
   constructor() {
     this.api = axios.create({
-      baseURL: process.env.REACT_APP_API_URL || 'http://localhost:4000/api',
+      baseURL: process.env.REACT_APP_API_URL || 'https://collaborative-boards-5.onrender.com/api',
       timeout: 30000, // Increased timeout to 30 seconds
     })
 
