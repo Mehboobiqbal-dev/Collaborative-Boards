@@ -205,7 +205,8 @@ class ApiService {
     assigneeId?: string
     dueDate?: string
   }): Promise<Card> {
-    const response = await this.api.post(`/lists/${listId}/cards`, card)
+    // Backend mounts cards router at /api/cards → POST /api/cards/lists/:listId/cards
+    const response = await this.api.post(`/cards/lists/${listId}/cards`, card)
     return response.data
   }
 
@@ -251,7 +252,7 @@ class ApiService {
     const params = new URLSearchParams()
 
     if (filters.query) params.append('query', filters.query)
-    if (filters.labels) filters.labels.forEach(label => params.append('labels', label))
+    if (filters.labels && filters.labels.length > 0) params.append('labels', filters.labels.join(','))
     if (filters.assignee) params.append('assignee', filters.assignee)
     if (filters.dueFrom) params.append('dueFrom', filters.dueFrom)
     if (filters.dueTo) params.append('dueTo', filters.dueTo)
@@ -298,6 +299,15 @@ class ApiService {
 
   async deleteAttachment(attachmentId: string): Promise<{ message: string }> {
     const response = await this.api.delete(`/attachments/${attachmentId}`)
+    return response.data
+  }
+
+  async searchUsers(query: string, boardId?: string): Promise<User[]> {
+    const params = new URLSearchParams()
+    params.append('q', query)
+    if (boardId) params.append('boardId', boardId)
+    
+    const response = await this.api.get(`/users/search?${params.toString()}`)
     return response.data
   }
 }
