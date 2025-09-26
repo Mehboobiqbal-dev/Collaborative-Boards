@@ -9,6 +9,7 @@ import BoardPage from './pages/BoardPage'
 import Layout from './components/Layout'
 import ErrorBoundary from './components/ErrorBoundary'
 import './App.css'
+import { RealTimeProvider } from './components/RealTimeProvider'
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth()
@@ -34,6 +35,7 @@ function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
+        <RealTimeProvider>
         <Router>
           <div className="App">
             <Routes>
@@ -97,6 +99,7 @@ function App() {
             />
           </div>
         </Router>
+        </RealTimeProvider>
       </AuthProvider>
     </ErrorBoundary>
   )

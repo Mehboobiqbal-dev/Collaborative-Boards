@@ -9,8 +9,7 @@ const SignupPage: React.FC = () => {
   const { signup, error } = useAuth()
   const navigate = useNavigate()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async () => {
     try {
       await signup(email, password, name)
       navigate('/login')
@@ -32,7 +31,7 @@ const SignupPage: React.FC = () => {
             </Link>
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <div className="mt-8 space-y-6">
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="name" className="sr-only">
@@ -93,13 +92,13 @@ const SignupPage: React.FC = () => {
 
           <div>
             <button
-              type="submit"
+              onClick={handleSubmit}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Create Account
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   )

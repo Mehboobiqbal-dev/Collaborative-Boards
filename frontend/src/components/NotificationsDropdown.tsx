@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { apiService } from '../services/api'
 import { Notification } from '../types'
+import { socketService } from '../services/socket'
 
 interface NotificationsDropdownProps {
   onNotificationClick?: (notification: Notification) => void
@@ -14,6 +15,34 @@ const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({ onNotific
 
   useEffect(() => {
     loadNotifications()
+  }, [])
+
+  useEffect(() => {
+    const onIncoming = (n: Notification) => {
+      setNotifications(prev => [n, ...prev])
+      setUnreadCount(prev => prev + 1)
+    }
+    socketService.onError(() => {})
+    // Listen to common notification-related events
+    // These event names should match backend; fallback to generic 'notification'
+    // @ts-ignore
+    socketService['socket']?.on('notification', onIncoming)
+    // @ts-ignore
+    socketService['socket']?.on('mention', onIncoming)
+    // @ts-ignore
+    socketService['socket']?.on('assignment', onIncoming)
+    // @ts-ignore
+    socketService['socket']?.on('comment', onIncoming)
+    return () => {
+      // @ts-ignore
+      socketService['socket']?.off('notification', onIncoming)
+      // @ts-ignore
+      socketService['socket']?.off('mention', onIncoming)
+      // @ts-ignore
+      socketService['socket']?.off('assignment', onIncoming)
+      // @ts-ignore
+      socketService['socket']?.off('comment', onIncoming)
+    }
   }, [])
 
   const loadNotifications = async () => {

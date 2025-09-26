@@ -55,8 +55,7 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
     }
   }
 
-  const handleAddComment = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleAddComment = async () => {
     if (!newComment.trim()) return
 
     setCommentLoading(true)
@@ -209,17 +208,17 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
             <div style={{ marginBottom: '2rem' }}>
               <h3>Comments</h3>
               <div className="relative">
-                <form onSubmit={handleAddComment} style={{ marginBottom: '1rem' }}>
+                <div style={{ marginBottom: '1rem' }}>
                   <textarea
                     value={newComment}
                     onChange={(e) => handleCommentChange(e.target.value)}
                     placeholder="Add a comment... Use @ to mention someone"
                     className="w-full min-h-20 p-3 border border-gray-300 rounded-md mb-2 resize-none"
                   />
-                  <button type="submit" className="btn btn-primary" disabled={commentLoading}>
+                  <button onClick={handleAddComment} className="btn btn-primary" disabled={commentLoading}>
                     {commentLoading ? 'Adding...' : 'Add Comment'}
                   </button>
-                </form>
+                </div>
 
                 {showMentions && filteredMembers.length > 0 && (
                   <div className="absolute bottom-full left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto z-10">
@@ -409,107 +408,67 @@ const MembersModal: React.FC<MembersModalProps> = ({ board, onClose, onBoardUpda
   }
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000,
-      }}
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" onClick={onClose}>
       <div
-        style={{
-          background: 'white',
-          padding: '2rem',
-          borderRadius: '8px',
-          width: '500px',
-          maxHeight: '80vh',
-          overflowY: 'auto',
-        }}
+        className="bg-white p-6 md:p-8 rounded-lg w-full max-w-xl max-h-[80vh] overflow-y-auto shadow-lg"
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h3>Manage Board Members</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>
-            ×
-          </button>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-semibold">Manage Board Members</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl leading-none">×</button>
         </div>
 
-        <div style={{ marginBottom: '2rem' }}>
-          <h4>Invite New Member</h4>
-          <form onSubmit={handleInviteMember}>
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-              <input
-                type="email"
-                placeholder="Email address"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                required
-                style={{ flex: 1, padding: '0.5rem' }}
-              />
-              <select
-                value={inviteRole}
-                onChange={(e) => setInviteRole(e.target.value as 'MEMBER' | 'COMMENTER' | 'VIEWER')}
-                style={{ padding: '0.5rem' }}
-              >
-                <option value="VIEWER">Viewer</option>
-                <option value="COMMENTER">Commenter</option>
-                <option value="MEMBER">Member</option>
-              </select>
-            </div>
+        <div className="mb-6">
+          <h4 className="text-sm font-medium text-gray-700 mb-2">Invite New Member</h4>
+          <form onSubmit={handleInviteMember} className="flex flex-col sm:flex-row gap-3">
+            <input
+              type="email"
+              placeholder="Email address"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              required
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <select
+              value={inviteRole}
+              onChange={(e) => setInviteRole(e.target.value as 'MEMBER' | 'COMMENTER' | 'VIEWER')}
+              className="px-3 py-2 border border-gray-300 rounded-md"
+            >
+              <option value="VIEWER">Viewer</option>
+              <option value="COMMENTER">Commenter</option>
+              <option value="MEMBER">Member</option>
+            </select>
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Inviting...' : 'Invite Member'}
+              {loading ? 'Inviting...' : 'Invite'}
             </button>
           </form>
         </div>
 
         <div>
-          <h4>Current Members</h4>
-          <div style={{ marginTop: '1rem' }}>
+          <h4 className="text-sm font-medium text-gray-700">Current Members</h4>
+          <div className="mt-3 space-y-2">
             {board.members.map((member) => (
-              <div
-                key={member.id}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '1rem',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  marginBottom: '0.5rem',
-                }}
-              >
+              <div key={member.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-md">
                 <div>
-                  <div style={{ fontWeight: 'bold' }}>{member.user.name}</div>
-                  <div style={{ fontSize: '0.9rem', color: '#666' }}>{member.user.email}</div>
+                  <div className="font-medium text-gray-900">{member.user.name}</div>
+                  <div className="text-xs text-gray-500">{member.user.email}</div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div className="flex items-center gap-2">
                   {member.userId === board.ownerId ? (
-                    <span style={{ fontWeight: 'bold', color: '#007bff' }}>Owner</span>
+                    <span className="text-blue-600 font-semibold">Owner</span>
                   ) : (
                     <>
                       <select
                         value={member.role}
                         onChange={(e) => handleUpdateRole(member.id, e.target.value)}
-                        style={{ padding: '0.25rem' }}
+                        className="px-2 py-1 border border-gray-300 rounded"
                       >
                         <option value="VIEWER">Viewer</option>
                         <option value="COMMENTER">Commenter</option>
                         <option value="MEMBER">Member</option>
                         <option value="ADMIN">Admin</option>
                       </select>
-                      <button
-                        onClick={() => handleRemoveMember(member.id)}
-                        className="btn btn-danger"
-                        style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
-                      >
+                      <button onClick={() => handleRemoveMember(member.id)} className="btn btn-danger text-xs px-2 py-1">
                         Remove
                       </button>
                     </>
@@ -735,8 +694,24 @@ const BoardPage: React.FC = () => {
     }
   }
 
-  const handleCreateList = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleDeleteCard = async (cardId: string) => {
+    if (!confirm('Delete this card?')) return
+    try {
+      await apiService.deleteCard(cardId)
+      setBoard(prev => prev ? {
+        ...prev,
+        lists: prev.lists.map(list => ({
+          ...list,
+          cards: list.cards.filter(c => c.id !== cardId)
+        }))
+      } : null)
+    } catch (error) {
+      console.error('Failed to delete card:', error)
+      alert('Failed to delete card')
+    }
+  }
+
+  const handleCreateList = async () => {
     if (!newListTitle.trim() || !board) return
 
     try {
@@ -1020,6 +995,14 @@ const BoardPage: React.FC = () => {
                             onClick={() => !snapshot.isDragging && setSelectedCard(card)}
                           >
                             <h4 className="font-semibold mb-2">{card.title}</h4>
+                            <div className="flex justify-end -mt-2 mb-2">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleDeleteCard(card.id) }}
+                                className="text-xs text-red-600 hover:text-red-800"
+                              >
+                                Delete
+                              </button>
+                            </div>
                   {card.description && (
                               <div className="mb-2 text-sm text-gray-600">
                                 <ReactMarkdown components={{
@@ -1067,7 +1050,7 @@ const BoardPage: React.FC = () => {
           <div className="min-w-72">
             {showAddList ? (
               <div className="bg-gray-50 rounded-lg p-4">
-                <form onSubmit={handleCreateList}>
+                  <div>
                   <input
                     type="text"
                     placeholder="Enter list title..."
@@ -1077,11 +1060,10 @@ const BoardPage: React.FC = () => {
                     autoFocus
                   />
                   <div className="flex gap-2">
-                    <button type="submit" className="btn btn-primary">
+                    <button onClick={handleCreateList} className="btn btn-primary">
                       Add List
                     </button>
                     <button
-                      type="button"
                       onClick={() => {
                         setShowAddList(false)
                         setNewListTitle('')
@@ -1091,7 +1073,7 @@ const BoardPage: React.FC = () => {
                       Cancel
                     </button>
                   </div>
-                </form>
+                  </div>
               </div>
             ) : (
               <button

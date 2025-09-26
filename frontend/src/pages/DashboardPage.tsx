@@ -33,8 +33,7 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const handleCreateBoard = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCreateBoard = async () => {
     if (!newBoardTitle.trim()) return;
 
     try {
@@ -102,7 +101,7 @@ const DashboardPage: React.FC = () => {
             }}
           >
             <h3>Create New Board</h3>
-            <form onSubmit={handleCreateBoard}>
+            <div>
               <div className="form-group">
                 <label htmlFor="boardTitle">Board Title</label>
                 <input
@@ -114,18 +113,17 @@ const DashboardPage: React.FC = () => {
                 />
               </div>
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                <button type="submit" className="btn btn-primary">
+                <button onClick={handleCreateBoard} className="btn btn-primary">
                   Create
                 </button>
                 <button
-                  type="button"
                   onClick={() => setShowCreateForm(false)}
                   className="btn btn-secondary"
                 >
                   Cancel
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}

@@ -1,4 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
+import { getErrorMessage } from '../utils/errorMessages'
+import { showErrorToast } from '../utils/errorMessages'
 import { AuthTokens, User, Board, BoardMember, Card, List, Notification, Attachment } from '../types'
 
 class ApiService {
@@ -45,6 +47,22 @@ class ApiService {
           }
         }
 
+        // Exponential backoff retry for 429 Too Many Requests
+        if (error.response?.status === 429) {
+          const maxRetries = 3
+          originalRequest._retry429Count = originalRequest._retry429Count || 0
+          if (originalRequest._retry429Count < maxRetries) {
+            originalRequest._retry429Count += 1
+            const delayMs = Math.min(1000 * 2 ** originalRequest._retry429Count, 8000)
+            await new Promise((resolve) => setTimeout(resolve, delayMs))
+            return this.api(originalRequest)
+          }
+        }
+
+        const message = getErrorMessage(error)
+        if (error.response?.status !== 401) {
+          showErrorToast(message)
+        }
         return Promise.reject(error)
       }
     )
