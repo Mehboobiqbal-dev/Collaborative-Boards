@@ -29,7 +29,7 @@ router.get('/:id', getBoard)
 router.patch('/:id', validateRequest(updateBoardSchema), updateBoard)
 router.delete('/:id', deleteBoard)
 
-router.post('/:id/members', validateRequest(addBoardMemberSchema), addBoardMember)
+router.post('/:boardId/members', validateRequest(addBoardMemberSchema), addBoardMember)
 router.patch('/:boardId/members/:memberId', validateRequest(updateBoardMemberSchema), updateBoardMember)
 router.delete('/:boardId/members/:memberId', removeBoardMember)
 

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { apiService } from '../services/api'
 import { Board } from '../types'
+import { getBoardUrl } from '../utils/urlUtils'
 
 interface SidebarProps {
   isOpen: boolean
@@ -34,9 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       const board = await apiService.createBoard(title)
       setBoards(prev => [...prev, board])
       setTitle('')
-      // Ensure proper URL encoding for board ID
-      const encodedBoardId = encodeURIComponent(board.id)
-      navigate(`/boards/${encodedBoardId}`)
+      navigate(getBoardUrl(board.id))
       onClose()
     } finally {
       setCreating(false)
@@ -99,8 +98,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <button
               key={b.id}
               onClick={() => { 
-                const encodedBoardId = encodeURIComponent(b.id)
-                navigate(`/boards/${encodedBoardId}`)
+                navigate(getBoardUrl(b.id))
                 onClose() 
               }}
               className={`w-full flex items-center gap-2 text-left px-3 py-2 rounded-md mb-1 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${active ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-600' : 'text-gray-800'}`}

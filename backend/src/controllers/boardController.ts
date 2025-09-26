@@ -44,7 +44,7 @@ export const deleteBoard = async (req: AuthRequest, res: Response) => {
 
 export const addBoardMember = async (req: AuthRequest, res: Response) => {
   const member = await boardService.addBoardMember(
-    req.params.id,
+    req.params.boardId,
     req.user!.id,
     req.body.email,
     req.body.role

@@ -5,6 +5,7 @@ import { apiService } from '../services/api';
 import { getErrorMessage, showErrorToast, showSuccessToast } from '../utils/errorMessages';
 import { Board } from '../types';
 import { DashboardLoader } from '../components/LoadingSpinner';
+import { getBoardUrl } from '../utils/urlUtils';
 
 const DashboardPage: React.FC = () => {
   const [boards, setBoards] = useState<Board[]>([]);
@@ -131,10 +132,7 @@ const DashboardPage: React.FC = () => {
             <div
               key={board.id}
               className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => {
-                const encodedBoardId = encodeURIComponent(board.id)
-                navigate(`/boards/${encodedBoardId}`)
-              }}
+              onClick={() => navigate(getBoardUrl(board.id))}
             >
               <h3 className="text-lg font-semibold mb-2">{board.title}</h3>
               <p className="text-sm text-gray-600 mb-1">Owner: {board.owner?.name ?? 'Unknown'}</p>

@@ -11,11 +11,12 @@ import SearchComponent from '../components/SearchComponent'
 import ListComponent from '../components/ListComponent'
 import CardModal from '../components/CardModal'
 import MembersModal from '../components/MembersModal'
+import { decodeBoardId } from '../utils/urlUtils'
 
 const BoardPage: React.FC = () => {
   const { boardId: rawBoardId } = useParams<{ boardId: string }>()
   // Decode the board ID to handle URL encoding
-  const boardId = rawBoardId ? decodeURIComponent(rawBoardId) : undefined
+  const boardId = rawBoardId ? decodeBoardId(rawBoardId) : undefined
   const [board, setBoard] = useState<Board | null>(null)
   const [loading, setLoading] = useState(true)
   const [showMembersModal, setShowMembersModal] = useState(false)
