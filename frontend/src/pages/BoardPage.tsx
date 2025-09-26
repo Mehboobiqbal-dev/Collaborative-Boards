@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd'
 import ReactMarkdown from 'react-markdown'
+import Swal from 'sweetalert2'
 import { apiService } from '../services/api'
 import { socketService } from '../services/socket'
 import { useRealTime } from '../components/RealTimeProvider'
@@ -506,6 +507,7 @@ const BoardPage: React.FC = () => {
   const [newListTitle, setNewListTitle] = useState('')
   const [editingListId, setEditingListId] = useState<string | null>(null)
   const [editingListTitle, setEditingListTitle] = useState('')
+  const [creatingCardFor, setCreatingCardFor] = useState<string | null>(null)
   const navigate = useNavigate()
   const { user } = useAuth()
   const rt = useRealTime()
@@ -686,16 +688,40 @@ const BoardPage: React.FC = () => {
   }
 
   const handleCreateCard = async (listId: string) => {
-    const title = prompt('Enter card title:')
+    if (creatingCardFor) return
+    const { value: title } = await Swal.fire({
+      title: 'Create New Card',
+      input: 'text',
+      inputLabel: 'Card Title',
+      inputPlaceholder: 'Enter card title...',
+      showCancelButton: true,
+      confirmButtonText: 'Create',
+      cancelButtonText: 'Cancel',
+      inputValidator: (value) => {
+        if (!value || !value.trim()) {
+          return 'Please enter a card title!'
+        }
+      }
+    })
+    
     if (!title) return
 
     try {
+      setCreatingCardFor(listId)
       const card = await apiService.createCard(listId, {
         title,
       })
       rt.emitCardCreate({ listId, card })
-    } catch (error) {
-      console.error('Failed to create card:', error)
+    } catch (error: any) {
+      if (error?.response?.status === 404) {
+        showErrorToast('List not found. Refreshing board...')
+        await loadBoard()
+      } else {
+        console.error('Failed to create card:', error)
+        showErrorToast(getErrorMessage(error))
+      }
+    } finally {
+      setCreatingCardFor(null)
     }
   }
 
@@ -1045,8 +1071,9 @@ const BoardPage: React.FC = () => {
             <button
               onClick={() => handleCreateCard(list.id)}
                 className="btn btn-secondary w-full"
+                disabled={creatingCardFor === list.id}
             >
-              + Add Card
+              {creatingCardFor === list.id ? 'Adding...' : '+ Add Card'}
             </button>
           </div>
         ))}

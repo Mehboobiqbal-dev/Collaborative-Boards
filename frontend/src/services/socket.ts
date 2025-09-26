@@ -29,6 +29,20 @@ class SocketService {
       showInfoToast('Reconnected')
     })
 
+    // If auth fails due to expired/invalid token, refresh auth payload and retry connection
+    this.socket.on('connect_error', (err: any) => {
+      const message: string = typeof err?.message === 'string' ? err.message : ''
+      if (message.toLowerCase().includes('unauthorized') || message.toLowerCase().includes('jwt')) {
+        const latestToken = localStorage.getItem('accessToken')
+        if (latestToken && this.socket) {
+          // update auth token and reconnect
+          // @ts-ignore
+          this.socket.auth = { token: latestToken }
+          this.socket.connect()
+        }
+      }
+    })
+
     return this.socket
   }
 
