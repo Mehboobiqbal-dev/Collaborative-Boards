@@ -15,7 +15,7 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(card.title)
   const [description, setDescription] = useState(card.description || '')
-  const [labels, setLabels] = useState<string[]>(card.labels || [])
+  const [labels, setLabels] = useState<string[]>(Array.isArray(card.labels) ? card.labels : [])
   const [assigneeId, setAssigneeId] = useState(card.assigneeId || '')
   const [dueDate, setDueDate] = useState(card.dueDate || '')
   const [newComment, setNewComment] = useState('')
@@ -116,11 +116,12 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
   }
 
   const toggleLabel = (label: string) => {
-    setLabels(prev =>
-      prev.includes(label)
-        ? prev.filter(l => l !== label)
-        : [...prev, label]
-    )
+    setLabels(prev => {
+      const labelsArray = Array.isArray(prev) ? prev : []
+      return labelsArray.includes(label)
+        ? labelsArray.filter(l => l !== label)
+        : [...labelsArray, label]
+    })
   }
 
   const availableLabels = ['bug', 'feature', 'enhancement', 'urgent', 'low-priority']
@@ -165,7 +166,7 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
         className="bg-white p-8 rounded-lg w-full max-w-4xl max-h-90vh overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-start mb-4">
+        <div className="flex justify-between gap-2 items-start mb-4">
           <div className="flex-1">
             {editing ? (
               <input
@@ -283,7 +284,7 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
                     <label key={label} style={{ display: 'block', marginBottom: '0.25rem' }}>
                       <input
                         type="checkbox"
-                        checked={labels.includes(label)}
+                        checked={Array.isArray(labels) && labels.includes(label)}
                         onChange={() => toggleLabel(label)}
                       />
                       <span style={{ marginLeft: '0.5rem' }}>{label}</span>
@@ -292,7 +293,7 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
                 </div>
               ) : (
                 <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
-                  {labels.length > 0 ? labels.map((label) => (
+                  {Array.isArray(labels) && labels.length > 0 ? labels.map((label) => (
                     <span key={label} style={{ padding: '0.25rem 0.5rem', backgroundColor: '#e9ecef', borderRadius: '12px', fontSize: '0.8rem' }}>
                       {label}
                     </span>

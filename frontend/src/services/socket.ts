@@ -93,8 +93,62 @@ class SocketService {
     this.socket?.emit('comment:create', data)
   }
 
-  onError(callback: (error: any) => void) {
+  emitListCreate(data: { boardId: string; title: string; position?: number }) {
+    this.socket?.emit('list:create', data)
+  }
+
+  emitListUpdate(data: { listId: string; updates: any }) {
+    this.socket?.emit('list:update', data)
+  }
+
+  emitListDelete(data: { listId: string }) {
+    this.socket?.emit('list:delete', data)
+  }
+
+  emitUserTyping(data: { cardId: string; isTyping: boolean }) {
+    this.socket?.emit('user:typing', data)
+  }
+
+  emitUserFocus(data: { cardId: string }) {
+    this.socket?.emit('user:focus', data)
+  }
+
+  // Event listeners for new features
+  onListCreated(callback: (list: any) => void) {
+    this.socket?.on('list:created', callback)
+  }
+
+  onListUpdated(callback: (list: any) => void) {
+    this.socket?.on('list:updated', callback)
+  }
+
+  onListDeleted(callback: (data: { listId: string }) => void) {
+    this.socket?.on('list:deleted', callback)
+  }
+
+  onUserTyping(callback: (data: { userId: string; cardId: string; isTyping: boolean }) => void) {
+    this.socket?.on('user:typing', callback)
+  }
+
+  onUserFocus(callback: (data: { userId: string; cardId: string }) => void) {
+    this.socket?.on('user:focus', callback)
+  }
+
+  onUserOffline(callback: (data: { userId: string }) => void) {
+    this.socket?.on('user:offline', callback)
+  }
+
+  onError(callback: (data: { message: string }) => void) {
     this.socket?.on('error', callback)
+  }
+
+  // Remove event listeners
+  removeAllListeners(event: string) {
+    this.socket?.removeAllListeners(event)
+  }
+
+  removeListener(event: string, callback: (...args: any[]) => void) {
+    this.socket?.off(event, callback)
   }
 }
 

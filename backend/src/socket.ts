@@ -4,6 +4,7 @@ import { boardService } from './services/boardService'
 import { cardService } from './services/cardService'
 import { commentService } from './services/commentService'
 import { notificationService } from './services/notificationService'
+import { listService } from './services/listService'
 import logger from './utils/logger'
 
 interface AuthenticatedSocket extends Socket {
@@ -150,8 +151,85 @@ export const setupSocketIO = (io: Server) => {
       }
     })
 
+    
+    socket.on('list:create', async (data: { boardId: string; title: string; position?: number }) => {
+      try {
+        if (!socket.boardId) return
+
+        const list = await listService.createList(
+          data.boardId,
+          socket.userId!,
+          data.title,
+          data.position
+        )
+
+        socket.to(`board:${socket.boardId}`).emit('list:created', list)
+        socket.emit('list:created', list)
+      } catch (error) {
+        socket.emit('error', { message: 'Failed to create list' })
+      }
+    })
+
+    socket.on('list:update', async (data: { listId: string; updates: any }) => {
+      try {
+        if (!socket.boardId) return
+
+        const list = await listService.updateList(
+          data.listId,
+          socket.userId!,
+          data.updates.title,
+          data.updates.position
+        )
+
+        socket.to(`board:${socket.boardId}`).emit('list:updated', list)
+        socket.emit('list:updated', list)
+      } catch (error) {
+        socket.emit('error', { message: 'Failed to update list' })
+      }
+    })
+
+    socket.on('list:delete', async (data: { listId: string }) => {
+      try {
+        if (!socket.boardId) return
+
+        await listService.deleteList(data.listId, socket.userId!)
+
+        socket.to(`board:${socket.boardId}`).emit('list:deleted', { listId: data.listId })
+        socket.emit('list:deleted', { listId: data.listId })
+      } catch (error) {
+        socket.emit('error', { message: 'Failed to delete list' })
+      }
+    })
+
+    
+    socket.on('user:typing', (data: { cardId: string; isTyping: boolean }) => {
+      if (!socket.boardId) return
+      
+      socket.to(`board:${socket.boardId}`).emit('user:typing', {
+        userId: socket.userId,
+        cardId: data.cardId,
+        isTyping: data.isTyping
+      })
+    })
+
+    socket.on('user:focus', (data: { cardId: string }) => {
+      if (!socket.boardId) return
+      
+      socket.to(`board:${socket.boardId}`).emit('user:focus', {
+        userId: socket.userId,
+        cardId: data.cardId
+      })
+    })
+
     socket.on('disconnect', () => {
       logger.info('User disconnected', { userId: socket.userId, socketId: socket.id })
+      
+
+      if (socket.boardId) {
+        socket.to(`board:${socket.boardId}`).emit('user:offline', {
+          userId: socket.userId
+        })
+      }
     })
   })
 }

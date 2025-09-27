@@ -14,6 +14,7 @@ const SignupPage = lazy(() => import('./pages/SignupPage'))
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 const BoardPage = lazy(() => import('./pages/BoardPage'))
 const AuthCallbackPage = lazy(() => import('./pages/AuthCallbackPage'))
+const InvitePage = lazy(() => import('./pages/InvitePage'))
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth()
@@ -63,6 +64,10 @@ function App() {
                 <Route
                   path="/auth/callback"
                   element={<AuthCallbackPage />}
+                />
+                <Route
+                  path="/invite/:token"
+                  element={<InvitePage />}
                 />
                 <Route
                   path="/dashboard"

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Swal from 'sweetalert2'
 import { apiService } from '../services/api'
 import { Board, BoardMember } from '../types'
@@ -12,8 +12,26 @@ interface MembersModalProps {
 
 const MembersModal: React.FC<MembersModalProps> = ({ board, onClose, onBoardUpdate }) => {
   const [inviteEmail, setInviteEmail] = useState('')
-  const [inviteRole, setInviteRole] = useState<'MEMBER' | 'COMMENTER' | 'VIEWER'>('MEMBER')
+  const [inviteRole, setInviteRole] = useState<'MEMBER' | 'ADMIN'>('MEMBER')
   const [loading, setLoading] = useState(false)
+  const [pendingInvites, setPendingInvites] = useState<any[]>([])
+  const [loadingInvites, setLoadingInvites] = useState(false)
+
+  useEffect(() => {
+    loadPendingInvites()
+  }, [])
+
+  const loadPendingInvites = async () => {
+    setLoadingInvites(true)
+    try {
+      const response = await apiService.getBoardInvites(board.id)
+      setPendingInvites(response.invites)
+    } catch (error) {
+      console.error('Failed to load pending invites:', error)
+    } finally {
+      setLoadingInvites(false)
+    }
+  }
 
   const handleInviteMember = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,14 +39,11 @@ const MembersModal: React.FC<MembersModalProps> = ({ board, onClose, onBoardUpda
 
     setLoading(true)
     try {
-      const member = await apiService.addBoardMember(board.id, inviteEmail, inviteRole)
-      onBoardUpdate({
-        ...board,
-        members: [...board.members, member]
-      })
+      await apiService.createBoardInvite(board.id, inviteEmail, inviteRole)
       setInviteEmail('')
       setInviteRole('MEMBER')
-      showSuccessToast('Member invited')
+      showSuccessToast('Invite sent successfully! The user will receive an email invitation.')
+      loadPendingInvites() // Refresh the pending invites list
     } catch (error) {
       console.error('Failed to invite member:', error)
       showErrorToast(getErrorMessage(error))
@@ -78,6 +93,30 @@ const MembersModal: React.FC<MembersModalProps> = ({ board, onClose, onBoardUpda
     }
   }
 
+  const handleCancelInvite = async (inviteId: string) => {
+    const result = await Swal.fire({
+      title: 'Cancel Invite',
+      text: 'Are you sure you want to cancel this invitation?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, cancel it!',
+      cancelButtonText: 'Cancel'
+    })
+
+    if (!result.isConfirmed) return
+
+    try {
+      await apiService.cancelInvite(inviteId)
+      showSuccessToast('Invitation cancelled')
+      loadPendingInvites() // Refresh the pending invites list
+    } catch (error) {
+      console.error('Failed to cancel invite:', error)
+      showErrorToast(getErrorMessage(error))
+    }
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" onClick={onClose}>
       <div
@@ -102,18 +141,41 @@ const MembersModal: React.FC<MembersModalProps> = ({ board, onClose, onBoardUpda
             />
             <select
               value={inviteRole}
-              onChange={(e) => setInviteRole(e.target.value as 'MEMBER' | 'COMMENTER' | 'VIEWER')}
+              onChange={(e) => setInviteRole(e.target.value as 'MEMBER' | 'ADMIN')}
               className="px-3 py-2 border border-gray-300 rounded-md"
             >
-              <option value="VIEWER">Viewer</option>
-              <option value="COMMENTER">Commenter</option>
               <option value="MEMBER">Member</option>
+              <option value="ADMIN">Admin</option>
             </select>
             <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? 'Inviting...' : 'Invite'}
             </button>
           </form>
         </div>
+
+        {pendingInvites.length > 0 && (
+          <div className="mb-6">
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Pending Invitations</h4>
+            <div className="space-y-2">
+              {pendingInvites.map((invite) => (
+                <div key={invite.id} className="flex items-center justify-between p-3 border border-yellow-200 rounded-md bg-yellow-50">
+                  <div>
+                    <div className="font-medium text-gray-900">{invite.email}</div>
+                    <div className="text-xs text-gray-500">
+                      Role: {invite.role} • Expires: {new Date(invite.expiresAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => handleCancelInvite(invite.id)}
+                    className="btn btn-danger text-xs px-2 py-1"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div>
           <h4 className="text-sm font-medium text-gray-700">Current Members</h4>
@@ -134,8 +196,6 @@ const MembersModal: React.FC<MembersModalProps> = ({ board, onClose, onBoardUpda
                         onChange={(e) => handleUpdateRole(member.id, e.target.value)}
                         className="px-2 py-1 border border-gray-300 rounded"
                       >
-                        <option value="VIEWER">Viewer</option>
-                        <option value="COMMENTER">Commenter</option>
                         <option value="MEMBER">Member</option>
                         <option value="ADMIN">Admin</option>
                       </select>

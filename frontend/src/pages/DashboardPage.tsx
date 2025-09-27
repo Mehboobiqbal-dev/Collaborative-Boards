@@ -6,6 +6,7 @@ import { getErrorMessage, showErrorToast, showSuccessToast } from '../utils/erro
 import { Board } from '../types';
 import { DashboardLoader } from '../components/LoadingSpinner';
 import { getBoardUrl } from '../utils/urlUtils';
+import PendingInvites from '../components/PendingInvites';
 
 const DashboardPage: React.FC = () => {
   const [boards, setBoards] = useState<Board[]>([]);
@@ -125,6 +126,10 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      <div className="mb-6">
+        <PendingInvites onInviteAccepted={loadBoards} />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {Array.isArray(boards) && boards.length > 0 ? (

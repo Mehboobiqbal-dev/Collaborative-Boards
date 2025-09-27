@@ -260,7 +260,11 @@ class ApiService {
     dueDate?: string
   }): Promise<Card> {
     // Backend mounts cards router at /api/cards → POST /api/cards/lists/:listId/cards
-    const response = await this.api.post(`/cards/lists/${listId}/cards`, card)
+    const cardData = {
+      ...card,
+      dueDate: card.dueDate ? new Date(card.dueDate).toISOString() : undefined,
+    }
+    const response = await this.api.post(`/cards/lists/${listId}/cards`, cardData)
     return response.data
   }
 
@@ -278,7 +282,11 @@ class ApiService {
     position?: number
     listId?: string
   }): Promise<Card> {
-    const response = await this.api.patch(`/cards/${cardId}`, updates)
+    const updateData = {
+      ...updates,
+      dueDate: updates.dueDate ? new Date(updates.dueDate).toISOString() : undefined,
+    }
+    const response = await this.api.patch(`/cards/${cardId}`, updateData)
     return response.data
   }
 
@@ -364,7 +372,7 @@ class ApiService {
   }
 
   async downloadAttachment(attachmentId: string): Promise<any> {
-    const response = await this.api.get(`/uploads/attachments/${attachmentId}/download`, {
+    const response = await this.api.get(`/attachments/${attachmentId}/download`, {
       responseType: 'blob'
     })
     return response
@@ -378,6 +386,37 @@ class ApiService {
     const response = await this.api.get(`/users/search?${params.toString()}`, {
       timeout: 10000 // Increased timeout for search requests (10 seconds)
     })
+    return response.data
+  }
+
+  // Invite system methods
+  async createBoardInvite(boardId: string, email: string, role: string = 'MEMBER'): Promise<any> {
+    const response = await this.api.post(`/boards/${boardId}/invites`, { email, role })
+    return response.data
+  }
+
+  async acceptInvite(token: string): Promise<any> {
+    const response = await this.api.post('/invites/accept', { token })
+    return response.data
+  }
+
+  async getInviteDetails(token: string): Promise<any> {
+    const response = await this.api.get(`/invite/${token}`)
+    return response.data
+  }
+
+  async getUserInvites(): Promise<{ invites: any[] }> {
+    const response = await this.api.get('/invites')
+    return response.data
+  }
+
+  async getBoardInvites(boardId: string): Promise<{ invites: any[] }> {
+    const response = await this.api.get(`/boards/${boardId}/invites`)
+    return response.data
+  }
+
+  async cancelInvite(inviteId: string): Promise<{ message: string }> {
+    const response = await this.api.delete(`/invites/${inviteId}`)
     return response.data
   }
 }

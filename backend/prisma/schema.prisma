@@ -24,6 +24,7 @@ model User {
   comments       Comment[]
   refreshTokens  RefreshToken[]
   notifications  Notification[]
+  sentInvites    BoardInvite[]   @relation("Inviter")
 
   @@map("users")
 }
@@ -38,6 +39,7 @@ model Board {
   owner       User           @relation("BoardOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   members     BoardMember[]
   lists       List[]
+  invites     BoardInvite[]
 
   @@map("boards")
 }
@@ -143,4 +145,23 @@ model RefreshToken {
 
   @@unique([tokenHash])
   @@map("refresh_tokens")
+}
+
+model BoardInvite {
+  id          String   @id @default(cuid()) @map("_id")
+  boardId     String
+  email       String
+  role        String   @default("MEMBER")
+  invitedBy   String
+  token       String   @unique
+  accepted    Boolean  @default(false)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  acceptedAt  DateTime?
+
+  board       Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  inviter     User     @relation("Inviter", fields: [invitedBy], references: [id], onDelete: Cascade)
+
+  @@unique([boardId, email])
+  @@map("board_invites")
 }

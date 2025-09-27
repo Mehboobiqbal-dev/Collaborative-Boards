@@ -12,6 +12,7 @@ import SearchComponent from '../components/SearchComponent'
 import ListComponent from '../components/ListComponent'
 import CardModal from '../components/CardModal'
 import MembersModal from '../components/MembersModal'
+import InviteModal from '../components/InviteModal'
 import { decodeBoardId } from '../utils/urlUtils'
 
 const BoardPage: React.FC = () => {
@@ -21,6 +22,7 @@ const BoardPage: React.FC = () => {
   const [board, setBoard] = useState<Board | null>(null)
   const [loading, setLoading] = useState(true)
   const [showMembersModal, setShowMembersModal] = useState(false)
+  const [showInviteModal, setShowInviteModal] = useState(false)
   const [selectedCard, setSelectedCard] = useState<Card | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Card[]>([])
@@ -318,12 +320,20 @@ const BoardPage: React.FC = () => {
             Filters {Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v) && '●'}
           </button>
           {canManageMembers() && (
-            <button
-              onClick={() => setShowMembersModal(true)}
-              className="btn btn-primary"
-            >
-              Manage Members
-            </button>
+            <>
+              <button
+                onClick={() => setShowInviteModal(true)}
+                className="btn btn-secondary"
+              >
+                Invite People
+              </button>
+              <button
+                onClick={() => setShowMembersModal(true)}
+                className="btn btn-primary"
+              >
+                Manage Members
+              </button>
+            </>
           )}
         </div>
 
@@ -473,6 +483,17 @@ const BoardPage: React.FC = () => {
           board={board}
           onClose={() => setShowMembersModal(false)}
           onBoardUpdate={setBoard}
+        />
+      )}
+
+      {showInviteModal && board && (
+        <InviteModal
+          isOpen={showInviteModal}
+          onClose={() => setShowInviteModal(false)}
+          boardId={board.id}
+          onInviteSent={() => {
+            // Optionally refresh the board data or show a success message
+          }}
         />
       )}
 

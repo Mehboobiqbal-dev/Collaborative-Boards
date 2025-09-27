@@ -17,6 +17,7 @@ import commentRoutes from './routes/comments'
 import userRoutes from './routes/users'
 import notificationRoutes from './routes/notifications'
 import uploadRoutes from './routes/uploads'
+import inviteRoutes from './routes/invites'
 import logger from './utils/logger'
 import { setupSocketIO } from './socket'
 
@@ -52,7 +53,8 @@ app.use('/api/cards', cardRoutes)
 app.use('/api', commentRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/notifications', notificationRoutes)
-app.use('/api/uploads', uploadRoutes)
+app.use('/api', uploadRoutes)
+app.use('/api', inviteRoutes)
 
 app.use('/uploads', express.static(process.env.UPLOAD_PATH || './uploads'))
 

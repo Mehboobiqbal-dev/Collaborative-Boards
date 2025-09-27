@@ -24,6 +24,10 @@
   ],
   "author": "",
   "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
     "@types/react": "^18.2.39",
