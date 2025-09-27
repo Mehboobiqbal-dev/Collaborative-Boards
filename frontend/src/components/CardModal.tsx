@@ -42,6 +42,8 @@ const CardModal: React.FC<CardModalProps> = ({ card, board, onClose, onCardUpdat
       onCardUpdate(updatedCard)
       setEditing(false)
       showSuccessToast('Card updated successfully')
+      // Close modal after successful save
+      setTimeout(() => onClose(), 100)
     } catch (error) {
       console.error('Failed to update card:', error)
       showErrorToast('Failed to update card')
